@@ -1,0 +1,1265 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Kursdaten Big Five</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: Hörsaal-Projektion im Stil der Vorlesungsfolien (weißer Grund, Uni-Blau, graue Tabellenflächen, Titel mit Verlaufslinie).
+   Eine Ansicht pro Folie, große Zahlen, Erläuterungen eingeklappt. */
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --ink: #161616;
+  --muted: #5c5c5c;
+  --line: #d9d9d9;
+  --fill: #e6e6e6;
+  --tint: #eef1f7;
+  --accent: #003399;
+  --bar: #5677c0;
+  --mean: #c0392b;
+  --good: #1d7a4d;
+  --warn: #8a5a00;
+  --c1: #2a78d6; --c2: #eb6834; --c3: #1baf7a;
+  --pos: #2563c9; --neg: #d0432f;
+  --k1: #2a78d6; --k2: #eb6834; --k3: #1baf7a; --k4: #eda100; --k5: #e87ba4; --k6: #008300;
+  --seqlo: #d6e4f7; --seqhi: #0f3f8c;
+  --font-body: "Cabin", "Gill Sans", "Gill Sans MT", "Segoe UI", system-ui, sans-serif;
+  --font-num: "Cabin", "Gill Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11141b; --surface: #11141b; --ink: #ececec; --muted: #a9aeb8; --line: #2d3442; --fill: #222a37; --tint: #19202c;
+    --accent: #8fb0ff; --bar: #7c9de0; --mean: #ff7a5c; --good: #4fd18f; --warn: #f0b75a;
+    --c1: #3987e5; --c2: #d95926; --c3: #199e70; --pos: #5b9bff; --neg: #ff6f5a;
+    --k1: #3987e5; --k2: #d95926; --k3: #199e70; --k4: #c98500; --k5: #d55181; --k6: #008300;
+    --seqlo: #2a3754; --seqhi: #a9c9ff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11141b; --surface: #11141b; --ink: #ececec; --muted: #a9aeb8; --line: #2d3442; --fill: #222a37; --tint: #19202c;
+  --accent: #8fb0ff; --bar: #7c9de0; --mean: #ff7a5c; --good: #4fd18f; --warn: #f0b75a;
+  --c1: #3987e5; --c2: #d95926; --c3: #199e70; --pos: #5b9bff; --neg: #ff6f5a;
+  --k1: #3987e5; --k2: #d95926; --k3: #199e70; --k4: #c98500; --k5: #d55181; --k6: #008300;
+  --seqlo: #2a3754; --seqhi: #a9c9ff;
+  color-scheme: dark;
+}
+html { font-size: clamp(16px, 0.55vw + 11px, 25px); }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); line-height: 1.4; font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1680px; margin: 0 auto; padding-block: 1rem 2rem; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 1.1rem; }
+
+/* header like a slide title: name, gradient rule underneath */
+header { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: .3rem 1.5rem; }
+header::after { content: ""; grid-column: 1 / -1; height: 3px; background: linear-gradient(90deg, var(--accent) 0%, color-mix(in oklab, var(--accent) 35%, transparent) 55%, transparent 90%); }
+.eyebrow { font-size: .95rem; color: var(--muted); }
+h1 { margin: 0; font-size: 2.3rem; font-weight: 500; line-height: 1.1; text-wrap: balance; }
+.bign { font-size: 2.6rem; font-weight: 600; line-height: 1; color: var(--accent); text-align: right; }
+.bign small { display: block; font-size: .95rem; font-weight: 400; color: var(--muted); }
+
+/* status line and data source panel */
+.statusline { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1.2rem; font-size: 1rem; }
+.badge { display: inline-flex; align-items: center; gap: .45rem; color: var(--ink); }
+.badge::before { content: ""; width: .7rem; height: .7rem; border-radius: 50%; background: var(--muted); flex: none; }
+.badge.live::before { background: var(--good); box-shadow: 0 0 0 4px color-mix(in oklab, var(--good) 22%, transparent); }
+.badge.demo::before { background: var(--warn); }
+#status { color: var(--muted); }
+#status.warn { color: var(--warn); }
+details.source { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+details.source > summary { cursor: pointer; padding: .55rem 0; color: var(--muted); font-size: 1rem; list-style: none; display: flex; align-items: center; gap: .5rem; }
+details.source > summary::-webkit-details-marker, details.more > summary::-webkit-details-marker { display: none; }
+details.source > summary::before, details.more > summary::before { content: ""; width: .5rem; height: .5rem; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .15s; flex: none; }
+details[open].source > summary::before, details[open].more > summary::before { transform: rotate(45deg); }
+.srcbody { display: grid; gap: .7rem; padding: .2rem 0 1rem; }
+.srcrow { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+#sheet { flex: 1 1 22rem; min-width: 0; font: inherit; font-size: 1rem; padding: .45rem .7rem; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--ink); }
+#sheet:focus { outline: none; border-color: var(--accent); }
+#found { display: flex; flex-wrap: wrap; gap: .4rem; }
+details.setup summary { cursor: pointer; font-size: .95rem; color: var(--muted); }
+details.setup ol { margin: .5rem 0 0; padding-left: 1.3rem; font-size: .95rem; display: grid; gap: .3rem; max-width: 95ch; }
+details.setup code { font-size: .9rem; background: var(--fill); padding: 0 .3rem; border-radius: 3px; }
+.drop { border: 1px dashed var(--muted); border-radius: 4px; padding: .35rem .8rem; font-size: .95rem; color: var(--muted); cursor: pointer; }
+.drop.over { border-color: var(--accent); color: var(--ink); }
+
+/* controls */
+.btn { font: inherit; font-size: 1rem; padding: .4rem .9rem; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; white-space: nowrap; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.btn[aria-pressed="true"] { border-color: var(--accent); background: var(--tint); color: var(--accent); font-weight: 600; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn:focus-visible, .tab:focus-visible, select:focus-visible, summary:focus-visible { outline: 3px solid var(--c2); outline-offset: 2px; }
+select { font: inherit; font-size: 1rem; padding: .35rem .5rem; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.controls { display: flex; flex-wrap: wrap; gap: .6rem 1rem; align-items: center; font-size: 1rem; }
+.controls label { display: inline-flex; gap: .4rem; align-items: center; color: var(--muted); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.seg button { font: inherit; font-size: 1rem; padding: .35rem .9rem; border: 0; background: var(--surface); color: var(--ink); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--bg); }
+.switch { display: inline-flex; gap: .45rem; align-items: center; font-size: 1rem; color: var(--muted); cursor: pointer; }
+.switch input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+
+/* tabs: text with an underline, like a slide index */
+.navrow { display: flex; flex-wrap: wrap; gap: .4rem 1.5rem; align-items: end; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.tabs { display: flex; flex-wrap: wrap; gap: 0 1.4rem; }
+.tab { font: inherit; font-size: 1.15rem; padding: .5rem 0 .45rem; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; background: none; color: var(--muted); cursor: pointer; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--accent); }
+.navrow .switch { padding-bottom: .5rem; }
+
+/* views and panels */
+.view { display: grid; gap: 1.4rem; }
+.view[hidden] { display: none; }
+.card { min-width: 0; }
+.card h2 { margin: 0 0 .5rem; font-size: 1.35rem; font-weight: 600; color: var(--accent); }
+.hint { margin: .4rem 0 0; font-size: .95rem; color: var(--muted); max-width: 80ch; }
+.note { font-size: 1rem; color: var(--warn); margin: .2rem 0 .4rem; }
+.empty { color: var(--muted); padding: 1rem 0; font-size: 1.05rem; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.6rem 2rem; }
+.grid2.eq { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.grid2.wide-r { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); }
+.grid2.wide-l { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+@media (max-width: 900px) { .grid2, .grid2.eq, .grid2.wide-r, .grid2.wide-l, .grid3 { grid-template-columns: 1fr; } }
+
+/* "Erläuterung": everything that is not needed to read the chart */
+details.more { font-size: 1rem; color: var(--muted); }
+details.more > summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: .5rem; padding: .2rem 0; }
+details.more > summary:hover { color: var(--ink); }
+details.more .moretext { display: grid; gap: .5rem; padding: .5rem 0 0 1rem; border-left: 2px solid var(--line); margin-top: .4rem; max-width: 80ch; }
+details.more .moretext p { margin: 0; }
+details.more .hint { font-size: 1rem; margin: 0; }
+
+/* charts */
+svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
+svg.chart text { font-family: var(--font-body); fill: var(--muted); font-size: 15px; }
+svg.chart .num { font-family: var(--font-num); }
+svg.chart .ink { fill: var(--ink); }
+.stats { display: flex; flex-wrap: wrap; gap: .2rem 1.4rem; font-size: 1.5rem; font-weight: 600; margin-bottom: .3rem; }
+.stats span b { font-weight: 400; color: var(--muted); font-size: 1rem; margin-right: .35rem; }
+.stats span.pv { color: var(--muted); font-weight: 500; }
+.gbar { display: grid; grid-template-columns: 8rem 1fr 7rem; gap: .7rem; align-items: center; margin: .6rem 0; font-size: 1.15rem; }
+.gbar .track { position: relative; height: 1.6rem; background: var(--fill); overflow: hidden; }
+.gbar .track i { display: block; height: 100%; background: var(--bar); }
+.gbar .track s { position: absolute; top: 0; bottom: 0; width: 3px; margin-left: -1.5px; background: var(--ink); }
+.gbar .num { text-align: right; }
+.rbig { font-size: 2.6rem; font-weight: 600; color: var(--accent); }
+#rn { font-size: 1.05rem; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: .4rem 1.4rem; font-size: 1.1rem; }
+.legend i { display: inline-block; width: 1.6rem; height: .32rem; vertical-align: middle; margin-right: .4rem; }
+#scatter svg { max-height: 66vh; }
+.d3 { touch-action: none; cursor: grab; user-select: none; }
+.d3:active { cursor: grabbing; }
+.d3 svg { max-height: 66vh; }
+.r3 { display: flex; flex-wrap: wrap; gap: .3rem 1.6rem; font-size: 1.5rem; font-weight: 600; }
+.r3 b { font-weight: 400; color: var(--muted); font-size: 1rem; margin-right: .35rem; }
+
+/* correlation and loading tables in the look of Folie 23 and 25 */
+.tablewrap { overflow-x: auto; }
+table.mx { border-collapse: separate; border-spacing: 2px; margin: 0 auto; }
+table.mx thead th { background: var(--fill); }
+table.mx th { font-weight: 400; color: var(--ink); font-size: 1rem; padding: .25rem .5rem; white-space: nowrap; }
+table.mx th.row { text-align: left; color: var(--accent); font-weight: 700; font-size: 1.1rem; background: none; }
+table.mx th.row span { font-weight: 400; color: var(--accent); margin-left: .6rem; font-size: .95rem; }
+table.mx th.fac { width: 7.8rem; }
+table.mx th.fac small { display: block; font-size: .9rem; color: var(--accent); font-weight: 700; }
+table.mx td { min-width: 3.8rem; height: 2.6rem; text-align: center; font-size: 1.15rem; color: var(--ink); }
+table.mx td.void { background: var(--fill); }
+table.mx td.max { font-weight: 700; }
+table.mx td.pair { font-weight: 700; outline: 3px solid var(--ink); outline-offset: -3px; }
+table.mx td small { display: block; font-size: .85rem; color: var(--muted); font-weight: 400; line-height: 1.1; }
+table.mx tr.sum td { font-size: 1rem; color: var(--muted); height: 2.1rem; }
+.mxlegend { display: flex; flex-wrap: wrap; gap: .4rem 1.4rem; align-items: center; font-size: 1rem; color: var(--muted); margin-top: .6rem; justify-content: center; }
+.mxlegend i { display: inline-block; width: 1.1rem; height: 1.1rem; vertical-align: middle; margin-right: .4rem; }
+.paircards { display: flex; flex-wrap: wrap; gap: .4rem 1.6rem; font-size: 1.1rem; margin-top: .6rem; justify-content: center; }
+.paircards span b { margin-left: .35rem; }
+table.ulist { border-collapse: collapse; width: 100%; font-size: 1.05rem; }
+table.ulist th { text-align: left; font-weight: 400; color: var(--muted); font-size: .95rem; padding: .3rem .5rem; border-bottom: 1px solid var(--line); }
+table.ulist td { padding: .35rem .5rem; border-bottom: 1px solid var(--line); }
+table.ulist tr.hit td { font-weight: 600; }
+table.ulist .sw { display: inline-block; width: .9rem; height: .9rem; border-radius: 50%; border: 1px solid rgba(0,0,0,.55); margin-right: .5rem; vertical-align: -.1rem; }
+table.ulist tr.hit .sw { border: 3px solid var(--ink); }
+.cbar { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; font-size: 1rem; color: var(--muted); margin-top: .4rem; }
+.cbar i { display: inline-block; width: min(16rem, 50vw); height: .9rem; border: 1px solid rgba(0,0,0,.35); }
+.cbar b { font-weight: 400; margin-left: .6rem; }
+table.ulist .btn { font-size: .9rem; padding: .15rem .6rem; }
+footer { font-size: .95rem; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.srchint { color: var(--muted); font-size: .95rem; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Vorlesung IV · Vorlesungsübung</div>
+      <h1>Kursdaten Big Five</h1>
+    </div>
+    <div class="bign" id="nbig">0<small>Antworten</small></div>
+  </header>
+
+  <div class="statusline">
+    <span class="badge" id="srcbadge">Lade Kursdaten …</span>
+    <span id="status" role="status" aria-live="polite"></span>
+  </div>
+
+  <details class="source" id="srcpanel">
+    <summary>Datenquelle</summary>
+    <div class="srcbody">
+      <div class="srcrow">
+        <button class="btn primary" id="live" type="button" aria-pressed="false">Live: aus</button>
+        <button class="btn" id="refresh" type="button">Jetzt aktualisieren</button>
+        <span class="srchint">Google gibt neue Antworten mit etwas Verzögerung weiter, das kann ein paar Minuten dauern.</span>
+      </div>
+      <div class="srcrow">
+        <select id="simmode" aria-label="Art der simulierten Daten"><option value="typen">Simulation mit drei Typen (Folie 45)</option><option value="kont">Simulation ohne Typen</option></select>
+        <button class="btn" id="demo" type="button">Simulieren (n = 150)</button>
+        <label class="drop" id="drop" for="csv">CSV hierher ziehen oder <u>auswählen</u></label>
+        <input id="csv" type="file" accept=".csv,text/csv" hidden>
+      </div>
+    </div>
+  </details>
+
+  <div class="navrow">
+    <nav class="tabs" role="tablist" aria-label="Ansichten">
+      <button class="tab" role="tab" data-view="stichprobe" type="button" title="Folie 6">Stichprobe</button>
+      <button class="tab" role="tab" data-view="interkorrelationen" type="button" title="Folie 23">Interkorrelationen</button>
+      <button class="tab" role="tab" data-view="faktorladungen" type="button" title="Folie 25">Faktorladungen</button>
+      <button class="tab" role="tab" data-view="verteilungen" type="button" title="Folien 28 bis 31">Verteilungen</button>
+      <button class="tab" role="tab" data-view="korrelation" type="button" title="Folie 33">Korrelation</button>
+      <button class="tab" role="tab" data-view="profile" type="button" title="Folien 41 bis 43">Profile</button>
+      <button class="tab" role="tab" data-view="typen" type="button" title="Folien 44 bis 46">Typen</button>
+      <button class="tab" role="tab" data-view="ungewoehnlich" type="button" title="Folie 47">Ungewöhnlichkeit</button>
+    </nav>
+    <label class="switch" for="prev"><input type="checkbox" id="prev" checked>Vorjahr zeigen</label>
+  </div>
+
+  <section class="view" id="v-stichprobe" role="tabpanel">
+    <div class="grid2">
+      <div class="card"><h2>Alter</h2><div class="stats" id="agestats"></div><div id="agechart"></div></div>
+      <div class="card"><h2>Geschlecht</h2><div id="gender"></div></div>
+    </div>
+    <details class="more"><summary>Erläuterung</summary><div class="moretext">
+      <p id="ageprev"></p>
+      <p>Gestrichelte Linie und schwarzer Strich: Werte des letzten Jahrgangs (WiSe 2025/26, Folie 6). Alter über 40 ist im Histogramm in „40+“ zusammengefasst.</p>
+    </div></details>
+  </section>
+
+  <section class="view" id="v-interkorrelationen" role="tabpanel" hidden>
+    <div class="card">
+      <div class="controls" style="margin-bottom:.6rem">
+        <h2 style="margin:0">Interkorrelationen der zehn Aussagen</h2>
+        <button class="btn" id="pairs" type="button" aria-pressed="false">Paare markieren</button>
+        <button class="btn" id="slide23" type="button" aria-pressed="false">Folie 23 zum Vergleich</button>
+      </div>
+      <div id="itemnote"></div>
+      <div class="tablewrap" id="itemtable"></div>
+      <div class="paircards" id="paircards"></div>
+      <div class="mxlegend"><span><i style="background:color-mix(in oklab, var(--pos) 55%, var(--surface))"></i>positiv</span><span><i style="background:color-mix(in oklab, var(--neg) 55%, var(--surface))"></i>negativ</span></div>
+    </div>
+    <details class="more"><summary>Erläuterung</summary><div class="moretext">
+      <p id="itemn"></p>
+      <p>Rohantworten 1 bis 5, nicht umgepolt; Reihenfolge und Kurzlabels wie auf Folie 23. Die vollen Aussagen erscheinen beim Darüberfahren. Ein negatives r heißt hier oft nur, dass eine der beiden Aussagen umgekehrt formuliert ist. Je kräftiger die Farbe, desto stärker die Korrelation.</p>
+      <p id="s23hint" hidden>Kleine graue Zahl: Wert auf Folie 23.</p>
+    </div></details>
+  </section>
+
+  <section class="view" id="v-faktorladungen" role="tabpanel" hidden>
+    <div class="card">
+      <div class="controls" style="margin-bottom:.6rem">
+        <h2 style="margin:0">Faktorladungen</h2>
+        <button class="btn" id="names" type="button" aria-pressed="false">Faktoren benennen</button>
+        <button class="btn" id="slide25" type="button" aria-pressed="false">Folie 25 zum Vergleich</button>
+      </div>
+      <div id="facnote"></div>
+      <div class="tablewrap" id="factable"></div>
+    </div>
+    <details class="more"><summary>Erläuterung</summary><div class="moretext">
+      <p id="facn"></p>
+      <p>Fünf Faktoren, Varimax-rotiert. Fett: höchste Ladung jeder Aussage. Die Reihenfolge F1 bis F5 folgt Folie 25 (N, E, O, V, G); zugeordnet wird über die beiden Aussagen jeder Dimension, das Vorzeichen so, dass die positiv formulierte Aussage positiv lädt.</p>
+      <p id="faceig"></p>
+      <p id="s25hint" hidden>Kleine graue Zahl: Wert auf Folie 25.</p>
+      <p><label class="switch" style="color:inherit">Extraktion <select id="method"><option value="pca">Hauptkomponenten</option><option value="paf">Hauptachsen</option></select></label></p>
+    </div></details>
+  </section>
+
+  <section class="view" id="v-verteilungen" role="tabpanel" hidden>
+    <div class="grid3" id="dists"></div>
+    <details class="more"><summary>Erläuterung</summary><div class="moretext">
+      <p id="disthint"></p>
+    </div></details>
+  </section>
+
+  <section class="view" id="v-korrelation" role="tabpanel" hidden>
+    <div class="card">
+      <div class="controls">
+        <span class="seg" role="group" aria-label="Darstellung"><button type="button" id="mode2" aria-pressed="true">2D</button><button type="button" id="mode3" aria-pressed="false">3D</button></span>
+        <label>x <select id="xdim"></select></label>
+        <label>y <select id="ydim"></select></label>
+        <label id="zlab" hidden>z <select id="zdim"></select></label>
+        <span id="ctl3" class="controls" hidden>
+          <button class="btn spinbtn" id="spin" type="button" aria-pressed="false">Drehen</button>
+          <button class="btn" id="plane" type="button" aria-pressed="false">Regressionsebene</button>
+          <button class="btn" id="reset3" type="button">Zurücksetzen</button>
+        </span>
+        <span class="rbig" id="rval"></span><span id="rn"></span>
+      </div>
+      <div id="wrap2"><div id="scatter"></div></div>
+      <div id="wrap3" hidden>
+        <div class="r3" id="r3" style="margin-top:.5rem"></div>
+        <div id="scatter3d" class="d3"></div>
+      </div>
+    </div>
+    <details class="more"><summary>Erläuterung</summary><div class="moretext">
+      <p>Kreisgröße = Anzahl Personen mit genau diesen Werten (die Werte sind Mittel aus zwei Aussagen, deshalb liegen viele Punkte übereinander). Rote Linie: Regressionsgerade.</p>
+      <p>3D: Mit der Maus oder dem Finger ziehen, um die Punktwolke zu drehen. Graue Punkte am Boden sind Schatten und zeigen die Lage in x und y. Regressionsebene: z vorhergesagt aus x und y zusammen (R²).</p>
+    </div></details>
+  </section>
+
+  <section class="view" id="v-profile" role="tabpanel" hidden>
+    <div class="card">
+      <div class="controls">
+        <label>A <select id="pa"></select></label>
+        <label>B <select id="pb"></select></label>
+        <label>C <select id="pc"></select></label>
+        <button class="btn" id="rand2" type="button">Zwei zufällige Personen</button>
+      </div>
+      <div class="legend" id="plegend" style="margin-top:.6rem"></div>
+    </div>
+    <div class="grid2 eq">
+      <div class="card"><h2>Rohwerte</h2><div id="praw"></div></div>
+      <div class="card"><h2>z-Werte im Kurs</h2><div id="pz"></div></div>
+    </div>
+    <div class="card" id="pcompare"></div>
+    <details class="more"><summary>Erläuterung</summary><div class="moretext">
+      <p>Rohwerte allein haben keinen Bezug: Was heißt eine 4 in Offenheit? Die z-Werte setzen sie in Bezug zum Kurs; zwischen −1 und +1 (graues Band) gilt als durchschnittlich.</p>
+      <p>Profilkorrelation r erfasst nur die Form der Profile, die euklidische Distanz auch Niveauunterschiede (Folie 43). Personen erscheinen nur als laufende Nummer.</p>
+    </div></details>
+  </section>
+
+  <section class="view" id="v-typen" role="tabpanel" hidden>
+    <div class="card">
+      <div class="controls">
+        <h2 style="margin:0">Typen</h2>
+        <label>k <select id="kk"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></label>
+        <button class="btn" id="tnames" type="button" aria-pressed="false">Typen benennen</button>
+        <button class="btn" id="tproto" type="button" aria-pressed="false">Folie 45 zum Vergleich</button>
+      </div>
+      <div id="tnote"></div>
+      <div class="legend" id="tlegend" style="margin-top:.6rem"></div>
+    </div>
+    <div class="grid2 wide-r">
+      <div class="card"><h2>Typprofile</h2><div id="tprof"></div></div>
+      <div class="card"><h2>Personen</h2><div class="controls"><span class="seg" role="group" aria-label="Darstellung"><button type="button" id="t2" aria-pressed="false">2D</button><button type="button" id="t3" aria-pressed="true">3D</button></span><label>x <select id="tx"></select></label><label>y <select id="ty"></select></label><label id="tzlab">z <select id="tz"></select></label><button class="btn spinbtn" id="tspin" type="button" aria-pressed="false">Drehen</button></div><div id="t3d" class="d3"></div></div>
+    </div>
+    <details class="more"><summary>Wie viele Typen? Und wie wird gerechnet?</summary><div class="moretext">
+      <p id="tn"></p>
+      <div class="stats" id="tstats"></div>
+      <div id="telbow" style="max-width:620px"></div>
+      <p>Die Kurve zeigt, welchen Anteil der Unterschiede zwischen Personen die Typzugehörigkeit erklärt (1 minus Streuung innerhalb der Typen geteilt durch die Gesamtstreuung). Ein deutlicher Knick spricht für diese Zahl an Typen.</p>
+      <p>k-means auf den z-standardisierten Skalenwerten (50 Starts): Jede Person gehört zu dem Typ, dessen Mittelwertprofil am nächsten liegt (Folie 44). „Typen benennen“ vergleicht jedes Typprofil mit den Prototypen von Folie 45 über die euklidische Distanz. Auch Daten ohne echte Typen lassen sich in k Gruppen teilen; ob es die Typen „wirklich“ gibt, beantwortet die Clusteranalyse allein nicht.</p>
+      <p id="tprofhint"></p>
+      <p>Personen (2D oder 3D): jede Person ein Punkt (leicht gestreut, weil viele dieselben Werte haben), Farbe und Form = Typ, große nummerierte Symbole = Typmittelwerte. Zugeordnet wird über alle fünf Dimensionen, nicht nur über die drei gezeigten.</p>
+    </div></details>
+  </section>
+
+  <section class="view" id="v-ungewoehnlich" role="tabpanel" hidden>
+    <div class="card">
+      <div class="controls">
+        <h2 style="margin:0">Wie ungewöhnlich ist ein Profil?</h2>
+        <label>Grenze <select id="ualpha"><option value=".05">p &lt; ,05</option><option value=".025" selected>p &lt; ,025</option><option value=".01">p &lt; ,01</option></select></label>
+      </div>
+      <div id="unote"></div>
+      <div class="stats" id="ustats" style="margin-top:.4rem"></div>
+    </div>
+    <div class="grid2 wide-l">
+      <div class="card"><h2>Personen</h2><div class="controls"><span class="seg" role="group" aria-label="Darstellung"><button type="button" id="u2" aria-pressed="false">2D</button><button type="button" id="u3" aria-pressed="true">3D</button></span><label>x <select id="ux"></select></label><label>y <select id="uy"></select></label><label id="uzlab">z <select id="uz"></select></label><button class="btn spinbtn" id="uspin" type="button" aria-pressed="false">Drehen</button></div><div id="u3d" class="d3"></div><div class="cbar" id="ucbar"></div></div>
+      <div class="card"><h2>Am ungewöhnlichsten</h2><div id="ulist" class="tablewrap"></div></div>
+    </div>
+    <details class="more"><summary>Verteilung von D² und Erläuterung</summary><div class="moretext">
+      <p id="un"></p>
+      <div id="uhist" style="max-width:640px"></div>
+      <p>Schwarze Linie: erwartete Verteilung, wenn die fünf Skalenwerte multivariat normalverteilt wären (χ² mit 5 Freiheitsgraden). Bei Antworten auf einer 1-bis-5-Skala und kleinem n ist das nur eine Näherung.</p>
+      <p>Die Mahalanobis-Distanz misst den Abstand eines Profils zum Mittelpunkt (Kreuz) und berücksichtigt dabei Streuungen und Korrelationen. Ungewöhnlich ist auch, wer eine seltene Kombination hat, ohne auf einer einzelnen Dimension extrem zu sein (Spalte „größtes |z|“). Farbe wie im Unusualness-Paper (Hätscher et al., 2026, Abbildung 3, Farbskala „cividis“): dunkel = unauffällig, gelb = ungewöhnlich, skaliert vom kleinsten bis zum größten D² im Kurs. Umrandet und nummeriert sind Personen jenseits der Grenze. Berechnet wird über alle fünf Dimensionen, im Bild können deshalb auch Punkte nahe der Mitte ungewöhnlich sein.</p>
+    </div></details>
+  </section>
+
+  <footer>
+    <details class="more"><summary>Über diese Seite</summary><div class="moretext">
+      <p>Fragebogen: BFI-10 (Rammstedt &amp; John), zehn Aussagen, zwei pro Dimension, Antworten 1 bis 5. Umgepolt (6 minus Antwort) werden „zurückhaltend“ (E), „kritisieren“ (V), „Faulheit“ (G), „entspannt“ (N) und „wenig künstlerisches Interesse“ (O).</p>
+      <p>Daten: die anonymen Antworten aus dem Kursformular (ohne Zeitstempel), von Google als Tabelle veröffentlicht und alle 30 Sekunden neu abgerufen. Sie werden nur im Browser ausgewertet, diese Seite speichert nichts. Personen erscheinen nur als laufende Nummer in der Reihenfolge der Antworten. Simulierte Daten: Mittelwerte und SDs wie im WiSe 2025/26 (Folien 28 bis 30), in der Variante mit Typen nach den Prototypen von Folie 45 (aus der Abbildung abgelesen). Vorjahreswerte und die Werte von Folie 23 und 25 sind von den Vorlesungsfolien übernommen.</p>
+    </div></details>
+  </footer>
+</div>
+
+<script>
+const DIMS = [
+  { k: "N", name: "Neurotizismus", items: [[4, true], [9, false]] },
+  { k: "E", name: "Extraversion", items: [[1, true], [6, false]] },
+  { k: "O", name: "Offenheit", items: [[5, true], [10, false]] },
+  { k: "V", name: "Verträglichkeit", items: [[2, false], [7, true]] },
+  { k: "G", name: "Gewissenhaftigkeit", items: [[3, true], [8, false]] }
+];
+const ITEM_KEYS = { 1: ["zuruckhaltend"], 2: ["vertrauen"], 3: ["faulheit", "bequem"], 4: ["entspannt"], 5: ["kunstlerisch"], 6: ["gesellig"], 7: ["kritisieren"], 8: ["grundlich"], 9: ["nervos"], 10: ["vorstellungskraft", "phantasievoll", "fantasievoll"] };
+const LABELS = [["uberhaupt nicht", 1], ["eher nicht", 2], ["weder", 3], ["eher zutreffend", 4], ["eher zu", 4], ["voll und ganz", 5]];
+const VIEWS = ["stichprobe", "interkorrelationen", "faktorladungen", "verteilungen", "korrelation", "profile", "typen", "ungewoehnlich"];
+
+// Items in BFI-10 order with the short labels of Folie 23 and 25.
+const ITEMS = [
+  { s: "zurückhaltend", t: "… bin eher zurückhaltend, reserviert." },
+  { s: "gutmütig", t: "… schenke anderen leicht Vertrauen, glaube an das Gute im Menschen." },
+  { s: "faul", t: "… bin bequem, neige zur Faulheit." },
+  { s: "entspannt", t: "… bin entspannt, lasse mich durch Stress nicht aus der Ruhe bringen." },
+  { s: "desinteressiert", t: "… habe nur wenig künstlerisches Interesse." },
+  { s: "gesellig", t: "… gehe aus mir heraus, bin gesellig." },
+  { s: "streitlustig", t: "… neige dazu, andere zu kritisieren." },
+  { s: "gründlich", t: "… erledige Aufgaben gründlich." },
+  { s: "unsicher", t: "… werde leicht nervös und unsicher." },
+  { s: "fantasievoll", t: "… habe eine aktive Vorstellungskraft, bin phantasievoll." }
+];
+const PAIRS = [[0, 5], [1, 6], [2, 7], [3, 8], [4, 9]];
+// Factor order of Folie 25: F1 N, F2 E, F3 O, F4 V, F5 G; pos = positively worded item.
+const FACS = [
+  { k: "N", name: "Neurotizismus", items: [3, 8], pos: 8 },
+  { k: "E", name: "Extraversion", items: [0, 5], pos: 5 },
+  { k: "O", name: "Offenheit", items: [4, 9], pos: 9 },
+  { k: "V", name: "Verträglichkeit", items: [1, 6], pos: 1 },
+  { k: "G", name: "Gewissenhaftigkeit", items: [2, 7], pos: 7 }
+];
+// Values copied from the lecture slides (Folie 23: upper triangle by row; Folie 25: F1 to F5 by item).
+const S23 = [
+  [.03, -.13, -.29, .06, -.57, -.12, .05, .21, -.13],
+  [.12, .25, -.05, .03, -.81, -.08, -.14, .05],
+  [.08, .29, .07, -.14, -.43, .21, .03],
+  [-.08, .24, -.16, -.12, -.44, .03],
+  [-.03, .03, .11, .08, -.48],
+  [.04, -.02, -.34, .18],
+  [.16, -.05, .03],
+  [.11, -.01],
+  [-.15]
+];
+const s23 = (i, j) => S23[i][j - i - 1];
+const S25 = [
+  [.37, -.75, -.07, .07, .00], [-.33, .00, -.05, .72, -.03], [-.03, .15, .10, .05, -.79], [-.67, .43, .20, -.10, -.18], [.14, .14, -.82, .00, .12],
+  [-.17, .79, .02, -.03, -.09], [-.04, .02, -.01, -.90, .13], [.00, .01, -.01, -.08, .81], [.81, -.08, -.12, -.11, .00], [.19, .39, .56, -.05, -.18]
+];
+// Last year's course (WiSe 2025/26), from Folien 6, 28 to 30 and 33.
+const PREV = {
+  age: { m: 21.29, md: 21, sd: 4.98 },
+  gender: { "weiblich": 123, "männlich": 14, "divers": 3 },
+  sc: { N: [3.32, 1.03], E: [3.40, 0.96], O: [3.87, 0.88], V: [3.48, 0.83], G: [3.85, 0.76] },
+  rEN: -0.33
+};
+
+const state = { rows: [], view: "stichprobe", sel: [0, 1, null], src: { kind: "none" }, fileId: null, prev: true, pairs: false, s23: false, names: false, s25: false, mode: "2d", az: -0.65, el: 0.42, spin: false, plane: false, tnames: false, tproto: false, simSeed: 11, tmode: "3d", umode: "3d" };
+const $ = (id) => document.getElementById(id);
+const fold = (s) => String(s ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ß/g, "ss").trim();
+const de = (v, d = 2) => (v < 0 ? "−" : "") + Math.abs(v).toFixed(d).replace(".", ",");
+const rfmt = (v) => (v < 0 && Math.abs(v) >= 0.005 ? "−" : "") + Math.abs(v).toFixed(2).replace(/^0/, "");
+const mean = (a) => a.reduce((s, v) => s + v, 0) / a.length;
+const sd = (a) => { const m = mean(a); return Math.sqrt(a.reduce((s, v) => s + (v - m) ** 2, 0) / (a.length - 1)); };
+const median = (a) => { const b = [...a].sort((x, y) => x - y), n = b.length; return n % 2 ? b[(n - 1) / 2] : (b[n / 2 - 1] + b[n / 2]) / 2; };
+function pearson(x, y) {
+  const mx = mean(x), my = mean(y); let sxy = 0, sxx = 0, syy = 0;
+  for (let i = 0; i < x.length; i++) { sxy += (x[i] - mx) * (y[i] - my); sxx += (x[i] - mx) ** 2; syy += (y[i] - my) ** 2; }
+  return sxx && syy ? sxy / Math.sqrt(sxx * syy) : NaN;
+}
+function setStatus(t, warn) { $("status").textContent = t; $("status").className = warn ? "warn" : ""; }
+function setSource(kind, label) {
+  state.src = { kind, label };
+  const b = $("srcbadge");
+  b.className = "badge" + (kind === "demo" ? " demo" : kind === "sheet" ? " live" : "");
+  b.textContent = kind === "demo" ? (label || "Simulierte Daten") : kind === "sheet" ? label : kind === "csv" ? "CSV-Datei: " + label : "Keine Daten";
+}
+
+// ---------- parsing ----------
+function parseCSV(text) {
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === "," || c === ";") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+    else cell += c;
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter((r) => r.some((c) => c.trim() !== ""));
+}
+function answer(v) {
+  const s = fold(v); if (!s) return NaN;
+  const n = Number(s.replace(",", "."));
+  if (isFinite(n) && n >= 1 && n <= 5) return n;
+  for (const [k, val] of LABELS) if (s.includes(k)) return val;
+  return NaN;
+}
+function toRows(table) {
+  if (!table.length) return { rows: [], missing: ["Tabelle ist leer"], found: 0 };
+  const hdr = table[0].map(fold), col = {};
+  for (const [it, keys] of Object.entries(ITEM_KEYS)) { const j = hdr.findIndex((h) => keys.some((k) => h.includes(k))); if (j >= 0) col[it] = j; }
+  const used = new Set(Object.values(col));
+  const ageJ = hdr.findIndex((h, j) => !used.has(j) && /\balter\b/.test(h));
+  const genJ = hdr.findIndex((h, j) => !used.has(j) && h.includes("geschlecht"));
+  const missing = Object.keys(ITEM_KEYS).filter((k) => !(k in col)).map((k) => "Item " + k);
+  const rows = [];
+  for (const r of table.slice(1)) {
+    const it = {}; for (const k of Object.keys(ITEM_KEYS)) it[k] = k in col ? answer(r[col[k]]) : NaN;
+    if (Object.values(it).every((v) => isNaN(v))) continue;
+    const sc = {};
+    for (const d of DIMS) {
+      const vals = d.items.map(([k, rev]) => (isNaN(it[k]) ? NaN : rev ? 6 - it[k] : it[k]));
+      sc[d.k] = vals.some(isNaN) ? NaN : (vals[0] + vals[1]) / 2;
+    }
+    const age = ageJ >= 0 ? Number(String(r[ageJ] ?? "").replace(",", ".").replace(/[^\d.]/g, "")) : NaN;
+    const g = genJ >= 0 ? fold(r[genJ]) : "";
+    const gender = g.startsWith("w") ? "weiblich" : g.startsWith("m") ? "männlich" : g.startsWith("d") ? "divers" : g ? "keine Angabe" : "";
+    rows.push({ it, sc, age: age >= 15 && age <= 99 ? age : NaN, gender });
+  }
+  return { rows, missing, found: Object.keys(col).length };
+}
+function load(table, kind, label) {
+  const { rows, missing, found } = toRows(table);
+  // A sheet with the right header but no answers yet (start of the lecture) counts as connected.
+  if (!rows.length && !(kind === "sheet" && found >= 5)) { setStatus("Keine auswertbaren Antworten gefunden. Stimmen die Fragen mit der Einrichtung überein?", true); return false; }
+  state.rows = rows;
+  setSource(kind, label);
+  if (missing.length) setStatus("Nicht gefunden: " + missing.join(", ") + ". Spaltentitel prüfen.", true);
+  else if (!rows.length) setStatus("Verbunden. Noch keine Antworten; die Ansicht füllt sich, sobald das Formular ausgefüllt wird.");
+  state.sel = rows.length ? state.sel.map((v, i) => (v != null && v >= 0 && v < rows.length ? v : i < 2 ? Math.min(i, rows.length - 1) : null)) : [null, null, null];
+  render();
+  return true;
+}
+
+// ---------- simulated data (n = 150) ----------
+// Scale means and SDs as in WiSe 2025/26 (Folien 28 bis 30); item pair r about .4; "typen" draws from the three prototypes of Folie 45.
+function simulate(mode, seed) {
+  const rnd = mulberry32(seed), norm = () => { let u = 0, v = 0; while (!u) u = rnd(); while (!v) v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  const K = ["N", "E", "O", "V", "G"];
+  const M = { N: 3.32, E: 3.40, O: 3.87, V: 3.48, G: 3.85 }, SD = { N: 1.03, E: 0.96, O: 0.88, V: 0.83, G: 0.76 };
+  // continuous case: modest correlations between the latent traits (order N E O V G)
+  const R = [[1, -0.25, 0, -0.15, -0.25], [-0.25, 1, 0.2, 0.1, 0.1], [0, 0.2, 1, 0.05, 0], [-0.15, 0.1, 0.05, 1, 0.15], [-0.25, 0.1, 0, 0.15, 1]];
+  const Lc = R.map(() => new Array(5).fill(0)); // Cholesky
+  for (let i = 0; i < 5; i++) for (let j = 0; j <= i; j++) { let sum = R[i][j]; for (let k = 0; k < j; k++) sum -= Lc[i][k] * Lc[j][k]; Lc[i][j] = i === j ? Math.sqrt(sum) : sum / Lc[j][j]; }
+  const lab = ["trifft überhaupt nicht zu", "trifft eher nicht zu", "weder noch", "eher zutreffend", "trifft voll und ganz zu"];
+  const hdr = ["Zeitstempel", ...ITEMS.map((it) => "Ich ... [" + it.t.replace("…", "...") + "]"), "Alter (in Jahren)", "Geschlecht"];
+  const map = [["E", true], ["V", false], ["G", true], ["N", true], ["O", true], ["E", false], ["V", true], ["G", false], ["N", false], ["O", false]];
+  const t = [hdr];
+  for (let i = 0; i < 150; i++) {
+    let z;
+    if (mode === "typen") { const u = rnd(), ty = u < 0.4 ? 0 : u < 0.7 ? 1 : 2; z = PROTO[ty].z.map((m) => 1.4 * m + 0.7 * norm()); }
+    else { const e = K.map(() => norm()); z = K.map((_, a) => Lc[a].reduce((s, l, b) => s + l * e[b], 0)); }
+    const lat = Object.fromEntries(K.map((k, a) => [k, z[a]]));
+    const row = ["simuliert"];
+    for (const [d, rev] of map) { let v = M[d] + 0.77 * SD[d] * lat[d] + 0.89 * SD[d] * norm(); if (rev) v = 6 - v; row.push(lab[Math.max(1, Math.min(5, Math.round(v))) - 1]); }
+    const old = rnd() < 0.08;
+    row.push(String(Math.min(60, Math.round(old ? 25 + 20 * rnd() : 18 + Math.abs(norm()) * 2.6))));
+    const g = rnd(); row.push(g < 0.87 ? "weiblich" : g < 0.97 ? "männlich" : "divers");
+    t.push(row);
+  }
+  load(t, "demo", `Simulierte Daten (n = 150, ${mode === "typen" ? "mit drei Typen" : "ohne Typen"}, Ziehung ${seed - 10})`);
+  setStatus("");
+}
+
+// ---------- charts ----------
+function svgEl(w, h) { return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img">`; }
+function histogram(values, bins, opts) {
+  const W = opts.w || 520, H = opts.h || 260, L = 40, R = 12, T = 14, B = 40, fs = opts.fs || 13;
+  const counts = bins.map(() => 0);
+  for (const v of values) { const k = opts.binOf(v); if (k >= 0 && k < counts.length) counts[k]++; }
+  const ymax = Math.max(1, ...counts), bw = (W - L - R) / bins.length;
+  const Y = (c) => H - B - (c / ymax) * (H - T - B);
+  let s = svgEl(W, H);
+  const step = ymax <= 6 ? 1 : ymax <= 15 ? 2 : ymax <= 40 ? 5 : 10;
+  for (let c = 0; c <= ymax; c += step) s += `<line x1="${L}" x2="${W - R}" y1="${Y(c)}" y2="${Y(c)}" stroke="var(--line)"/><text class="num" x="${L - 6}" y="${Y(c) + 4}" text-anchor="end" style="font-size:${fs}px">${c}</text>`;
+  counts.forEach((c, i) => {
+    const x = L + i * bw + 2, y = Y(c);
+    s += `<rect x="${x}" y="${y}" width="${bw - 4}" height="${H - B - y}" rx="1" fill="var(--bar)"/>`;
+    if (opts.labelEvery == null || i % opts.labelEvery === 0) s += `<text class="num" x="${x + (bw - 4) / 2}" y="${H - B + fs + 4}" text-anchor="middle" style="font-size:${fs}px">${bins[i]}</text>`;
+  });
+  if (opts.prevX != null) s += `<line x1="${opts.prevX}" x2="${opts.prevX}" y1="${T - 4}" y2="${H - B}" stroke="var(--ink)" stroke-opacity=".6" stroke-width="2.5" stroke-dasharray="6 5"/>`;
+  if (values.length && opts.xOf) { const xm = opts.xOf(mean(values)); s += `<line x1="${xm}" x2="${xm}" y1="${T - 4}" y2="${H - B}" stroke="var(--mean)" stroke-width="3"/>`; }
+  s += `<text x="${(L + W - R) / 2}" y="${H - 4}" text-anchor="middle">${opts.xlabel || ""}</text>`;
+  return s + "</svg>";
+}
+
+function renderSample() {
+  const ages = state.rows.map((r) => r.age).filter((v) => !isNaN(v));
+  $("agestats").innerHTML = ages.length ? `<span><b>M</b>${de(mean(ages), 1)}</span><span><b>SD</b>${ages.length > 1 ? de(sd(ages), 1) : "–"}</span>${state.prev ? `<span class="pv"><b>Vorjahr M</b>${de(PREV.age.m, 1)}</span>` : ""}` : "";
+  $("ageprev").textContent = `Alter: n = ${ages.length}${ages.length ? `, Median ${de(median(ages), 1)}` : ""}. Vorjahr (WiSe 2025/26): M = ${de(PREV.age.m)}, Median ${PREV.age.md}, SD = ${de(PREV.age.sd)}; ${PREV.gender["weiblich"]} weiblich, ${PREV.gender["männlich"]} männlich, ${PREV.gender["divers"]} divers.`;
+  if (!ages.length) { $("agechart").innerHTML = `<p class="empty">Keine Altersangaben.</p>`; }
+  else {
+    const lo = Math.max(16, Math.floor(Math.min(...ages))), cap = 40, hi = Math.min(cap, Math.ceil(Math.max(...ages)));
+    const bins = []; for (let a = lo; a <= hi; a++) bins.push(a === cap ? cap + "+" : String(a));
+    const W = 520, L = 40, R = 12;
+    const xOf = (m) => L + (Math.min(m, cap) - lo + 0.5) * ((W - L - R) / bins.length);
+    $("agechart").innerHTML = histogram(ages, bins, {
+      binOf: (v) => Math.min(Math.floor(v), cap) - lo, labelEvery: bins.length > 14 ? 2 : 1, xlabel: "Alter in Jahren", xOf,
+      prevX: state.prev && PREV.age.m >= lo && PREV.age.m <= hi + 1 ? xOf(PREV.age.m) : null
+    });
+  }
+  const order = ["weiblich", "männlich", "divers", "keine Angabe"];
+  const gs = state.rows.map((r) => r.gender).filter(Boolean), n = gs.length;
+  const pn = Object.values(PREV.gender).reduce((s, v) => s + v, 0);
+  $("gender").innerHTML = n ? order.map((g) => {
+    const c = gs.filter((x) => x === g).length, p = c / n * 100;
+    const pc = PREV.gender[g], pp = pc != null ? pc / pn * 100 : null;
+    const mark = state.prev && pp != null ? `<s style="left:${pp}%" title="WiSe 2025/26: ${pc} · ${pp.toFixed(0)} %"></s>` : "";
+    return `<div class="gbar"><span>${g}</span><span class="track"><i style="width:${p}%"></i>${mark}</span><span class="num">${c} · ${p.toFixed(0)} %</span></div>`;
+  }).join("") : `<p class="empty">Keine Angaben zum Geschlecht.</p>`;
+}
+
+function renderDists() {
+  const W = 340, L = 40, R = 12;
+  const bins = ["1", "1,5", "2", "2,5", "3", "3,5", "4", "4,5", "5"];
+  const xOf = (m) => L + ((m - 1) * 2 + 0.5) * ((W - L - R) / 9);
+  $("dists").innerHTML = DIMS.map((d) => {
+    const v = state.rows.map((r) => r.sc[d.k]).filter((x) => !isNaN(x));
+    const [pm, ps] = PREV.sc[d.k];
+    const st = (v.length ? `<span><b>M</b>${de(mean(v))}</span><span><b>SD</b>${v.length > 1 ? de(sd(v)) : "–"}</span>` : "") + (state.prev ? `<span class="pv" title="Vorjahr: M ${de(pm)}, SD ${de(ps)}"><b>Vorjahr</b>${de(pm)}</span>` : "");
+    const pv = "";
+    const chart = v.length ? histogram(v, bins, { w: W, h: 230, fs: 15, binOf: (x) => Math.round((x - 1) * 2), xOf, prevX: state.prev ? xOf(pm) : null }) : `<p class="empty">Keine Werte.</p>`;
+    return `<div class="card"><h2>${d.name}</h2><div class="stats">${st}</div>${pv}${chart}</div>`;
+  }).join("");
+  const nn = state.rows.filter((r) => DIMS.every((d) => !isNaN(r.sc[d.k]))).length;
+  $("disthint").textContent = `Grundlage: ${nn} vollständige Antworten. Skalenwert = Mittelwert der zwei Aussagen einer Dimension (1 bis 5, daher halbe Schritte). Rote Linie: euer Mittelwert M; gestrichelt: Mittelwert des letzten Jahrgangs (WiSe 2025/26, Folien 28 bis 30; SD dort: ${DIMS.map((d) => d.k + " " + de(PREV.sc[d.k][1])).join(", ")}). SD mit n − 1.`;
+}
+
+function renderScatter() {
+  const xi = $("xdim").value, yi = $("ydim").value;
+  const pts = state.rows.map((r) => [r.sc[xi], r.sc[yi]]).filter((p) => !isNaN(p[0]) && !isNaN(p[1]));
+  const dx = DIMS.find((d) => d.k === xi), dy = DIMS.find((d) => d.k === yi);
+  const W = 760, H = 520, L = 64, R = 20, T = 20, B = 60;
+  const X = (v) => L + (v - 0.75) / 4.5 * (W - L - R), Y = (v) => H - B - (v - 0.75) / 4.5 * (H - T - B);
+  let s = svgEl(W, H);
+  for (let v = 1; v <= 5; v += 0.5) {
+    const major = Number.isInteger(v);
+    s += `<line x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${H - B}" stroke="var(--line)" ${major ? "" : 'stroke-dasharray="2 4"'}/>`;
+    s += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" ${major ? "" : 'stroke-dasharray="2 4"'}/>`;
+    if (major) { s += `<text class="num" x="${X(v)}" y="${H - B + 26}" text-anchor="middle" style="font-size:20px">${v}</text><text class="num" x="${L - 12}" y="${Y(v) + 7}" text-anchor="end" style="font-size:20px">${v}</text>`; }
+  }
+  s += `<text class="ink" x="${(L + W - R) / 2}" y="${H - 12}" text-anchor="middle" style="font-size:24px">${dx.name}</text>`;
+  s += `<text class="ink" transform="translate(18 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle" style="font-size:24px">${dy.name}</text>`;
+  const cnt = new Map(); pts.forEach(([a, b]) => { const k = a + "|" + b; cnt.set(k, (cnt.get(k) || 0) + 1); });
+  const cmax = Math.max(1, ...cnt.values());
+  for (const [k, c] of cnt) { const [a, b] = k.split("|").map(Number); s += `<circle cx="${X(a)}" cy="${Y(b)}" r="${4 + 13 * Math.sqrt(c / cmax)}" fill="var(--c1)" fill-opacity=".55" stroke="var(--c1)"><title>${c} Person(en): ${dx.k} = ${de(a, 1)}, ${dy.k} = ${de(b, 1)}</title></circle>`; }
+  let r = NaN;
+  if (pts.length >= 3 && xi !== yi) {
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]); r = pearson(xs, ys);
+    const mx = mean(xs), my = mean(ys), b = r * sd(ys) / sd(xs), a = my - b * mx;
+    if (isFinite(b)) s += `<line x1="${X(1)}" y1="${Y(a + b)}" x2="${X(5)}" y2="${Y(a + 5 * b)}" stroke="var(--mean)" stroke-width="3"/>`;
+  }
+  $("scatter").innerHTML = s + "</svg>";
+  if (state.mode === "3d") return;
+  $("rval").textContent = isFinite(r) ? "r = " + rfmt(r) : "";
+  const en = (xi === "E" && yi === "N") || (xi === "N" && yi === "E");
+  $("rn").textContent = state.prev && en ? "Vorjahr r = " + rfmt(PREV.rEN) : "";
+}
+
+// ---------- linear algebra for the 10 x 10 item matrix ----------
+function itemData() { return state.rows.map((r) => ITEMS.map((_, j) => r.it[j + 1])).filter((v) => v.every((x) => !isNaN(x))); }
+function corrMatrix(X) {
+  const n = X.length, p = X[0].length;
+  const m = Array.from({ length: p }, (_, j) => X.reduce((s, r) => s + r[j], 0) / n);
+  const C = Array.from({ length: p }, () => new Array(p).fill(0));
+  for (const r of X) for (let a = 0; a < p; a++) { const da = r[a] - m[a]; for (let b = a; b < p; b++) C[a][b] += da * (r[b] - m[b]); }
+  const R = Array.from({ length: p }, () => new Array(p).fill(NaN));
+  for (let a = 0; a < p; a++) for (let b = a; b < p; b++) { const v = C[a][a] > 0 && C[b][b] > 0 ? C[a][b] / Math.sqrt(C[a][a] * C[b][b]) : NaN; R[a][b] = R[b][a] = a === b && isFinite(v) ? 1 : v; }
+  return R;
+}
+function eigSym(A) { // cyclic Jacobi; returns eigenvalues descending and eigenvectors[k][i]
+  const n = A.length, a = A.map((r) => r.slice()), V = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => +(i === j)));
+  for (let sweep = 0; sweep < 100; sweep++) {
+    let off = 0; for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) off += a[i][j] ** 2;
+    if (off < 1e-22) break;
+    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) {
+      if (Math.abs(a[p][q]) < 1e-14) continue;
+      const th = (a[q][q] - a[p][p]) / (2 * a[p][q]);
+      const t = (th >= 0 ? 1 : -1) / (Math.abs(th) + Math.sqrt(th * th + 1)), c = 1 / Math.sqrt(t * t + 1), s = t * c;
+      for (let k = 0; k < n; k++) { const x = a[k][p], y = a[k][q]; a[k][p] = c * x - s * y; a[k][q] = s * x + c * y; }
+      for (let k = 0; k < n; k++) { const x = a[p][k], y = a[q][k]; a[p][k] = c * x - s * y; a[q][k] = s * x + c * y; }
+      for (let k = 0; k < n; k++) { const x = V[k][p], y = V[k][q]; V[k][p] = c * x - s * y; V[k][q] = s * x + c * y; }
+    }
+  }
+  const vals = a.map((r, i) => r[i]), idx = vals.map((_, i) => i).sort((i, j) => vals[j] - vals[i]);
+  return { values: idx.map((i) => vals[i]), vectors: idx.map((i) => V.map((r) => r[i])) };
+}
+function invert(M) {
+  const n = M.length, A = M.map((r, i) => [...r, ...Array.from({ length: n }, (_, j) => +(i === j))]);
+  for (let c = 0; c < n; c++) {
+    let piv = c; for (let r = c + 1; r < n; r++) if (Math.abs(A[r][c]) > Math.abs(A[piv][c])) piv = r;
+    if (Math.abs(A[piv][c]) < 1e-10) return null;
+    [A[c], A[piv]] = [A[piv], A[c]];
+    const d = A[c][c]; for (let j = 0; j < 2 * n; j++) A[c][j] /= d;
+    for (let r = 0; r < n; r++) if (r !== c) { const f = A[r][c]; if (f) for (let j = 0; j < 2 * n; j++) A[r][j] -= f * A[c][j]; }
+  }
+  return A.map((r) => r.slice(n));
+}
+function loadingsFrom(e, m) { return Array.from({ length: e.vectors[0].length }, (_, i) => Array.from({ length: m }, (_, k) => e.vectors[k][i] * Math.sqrt(Math.max(e.values[k], 0)))); }
+function paf(R, m) { // principal axis factoring, SMC start, communalities capped at .995
+  const inv = invert(R);
+  let h = inv ? R.map((_, i) => Math.min(0.995, Math.max(0.005, 1 - 1 / inv[i][i]))) : R.map((row, i) => Math.max(...row.map((v, j) => (i === j ? 0 : Math.abs(v)))));
+  let L = null, it = 0, heywood = false;
+  for (; it < 500; it++) {
+    L = loadingsFrom(eigSym(R.map((row, i) => row.map((v, j) => (i === j ? h[i] : v)))), m);
+    const h2 = L.map((r) => r.reduce((s, v) => s + v * v, 0));
+    heywood = h2.some((v) => v > 0.995);
+    const capped = h2.map((v) => Math.min(v, 0.995)), diff = Math.max(...capped.map((v, i) => Math.abs(v - h[i])));
+    h = capped; if (diff < 1e-6) break;
+  }
+  return { L, converged: it < 500, heywood };
+}
+function varimax(L0) { // Kaiser-normalized, pairwise rotations
+  const p = L0.length, m = L0[0].length;
+  const h = L0.map((r) => Math.sqrt(r.reduce((s, v) => s + v * v, 0)) || 1), L = L0.map((r, i) => r.map((v) => v / h[i]));
+  for (let sweep = 0; sweep < 200; sweep++) {
+    let moved = 0;
+    for (let a = 0; a < m - 1; a++) for (let b = a + 1; b < m; b++) {
+      let A = 0, B = 0, C = 0, D = 0;
+      for (let i = 0; i < p; i++) { const x = L[i][a], y = L[i][b], u = x * x - y * y, v = 2 * x * y; A += u; B += v; C += u * u - v * v; D += 2 * u * v; }
+      const phi = Math.atan2(D - 2 * A * B / p, C - (A * A - B * B) / p) / 4;
+      if (Math.abs(phi) < 1e-9) continue;
+      moved = Math.max(moved, Math.abs(phi));
+      const c = Math.cos(phi), s = Math.sin(phi);
+      for (let i = 0; i < p; i++) { const x = L[i][a], y = L[i][b]; L[i][a] = c * x + s * y; L[i][b] = -s * x + c * y; }
+    }
+    if (moved < 1e-8) break;
+  }
+  return L.map((r, i) => r.map((v) => v * h[i]));
+}
+function perms(a) { return a.length <= 1 ? [a] : a.flatMap((x, i) => perms([...a.slice(0, i), ...a.slice(i + 1)]).map((p) => [x, ...p])); }
+function alignFactors(Lr) { // column t = factor that best carries the item pair of FACS[t]
+  let best = null, bs = -1;
+  for (const pm of perms([0, 1, 2, 3, 4])) { const sc = FACS.reduce((s, f, t) => s + f.items.reduce((q, i) => q + Lr[i][pm[t]] ** 2, 0), 0); if (sc > bs) { bs = sc; best = pm; } }
+  return Lr.map((row) => FACS.map((f, t) => (Lr[f.pos][best[t]] < 0 ? -1 : 1) * row[best[t]]));
+}
+function cellBg(r) { if (!isFinite(r)) return ""; const p = Math.round(Math.min(1, Math.abs(r)) * 55); return `background:color-mix(in oklab, var(${r < 0 ? "--neg" : "--pos"}) ${p}%, var(--surface))`; }
+const smallNote = (n, what) => (n < 30 ? `<p class="note">Mit n = ${n} schwanken die ${what} noch stark.</p>` : "");
+
+function renderItems() {
+  const X = itemData(), n = X.length, R = n >= 3 ? corrMatrix(X) : null;
+  $("itemn").textContent = `Grundlage: ${n} vollständige Antworten.`;
+  $("itemnote").innerHTML = n < 3 ? `<p class="note">Zu wenige vollständige Antworten für Korrelationen.</p>` : smallNote(n, "Korrelationen");
+  const isPair = (i, j) => PAIRS.some(([a, b]) => a === i && b === j);
+  let h = `<table class="mx"><thead><tr><th></th><th></th>${ITEMS.slice(1).map((_, j) => `<th>${j + 2}</th>`).join("")}</tr></thead><tbody>`;
+  ITEMS.forEach((it, i) => {
+    h += `<tr><th class="row" title="${it.t}">${it.s}</th><th>${i + 1}</th>`;
+    for (let j = 1; j < ITEMS.length; j++) {
+      if (j <= i) { h += `<td class="void"></td>`; continue; }
+      const r = R ? R[i][j] : NaN, cls = state.pairs && isPair(i, j) ? "pair" : "";
+      const tip = `${ITEMS[i].s} (${ITEMS[i].t}) und ${ITEMS[j].s} (${ITEMS[j].t}): r = ${isFinite(r) ? rfmt(r) : "–"}; Folie 23: ${rfmt(s23(i, j))}`;
+      h += `<td class="${cls}" style="${cellBg(r)}" title="${tip}">${isFinite(r) ? rfmt(r) : "–"}${state.s23 ? `<small>${rfmt(s23(i, j))}</small>` : ""}</td>`;
+    }
+    h += `</tr>`;
+  });
+  $("itemtable").innerHTML = h + `</tbody></table>`;
+  $("s23hint").hidden = !state.s23;
+  $("paircards").innerHTML = state.pairs ? PAIRS.map(([a, b]) => `<span>${ITEMS[a].s} und ${ITEMS[b].s}<b>${R && isFinite(R[a][b]) ? rfmt(R[a][b]) : "–"}</b></span>`).join("") : "";
+}
+
+function renderFactors() {
+  const X = itemData(), n = X.length;
+  $("facn").textContent = `Grundlage: ${n} vollständige Antworten.`;
+  $("faceig").textContent = "";
+  if (n < 12) { $("facnote").innerHTML = ""; $("factable").innerHTML = `<p class="empty">Für eine Faktorenanalyse braucht es mindestens 12 vollständige Antworten (bisher ${n}).</p>`; return; }
+  const R = corrMatrix(X);
+  if (R.some((row) => row.some((v) => !isFinite(v)))) { $("facnote").innerHTML = ""; $("factable").innerHTML = `<p class="empty">Mindestens eine Aussage hat bisher bei allen dieselbe Antwort. Dann ist keine Faktorenanalyse möglich.</p>`; return; }
+  const eig = eigSym(R);
+  let L0, note = smallNote(n, "Ladungen");
+  if ($("method").value === "paf") {
+    const f = paf(R, 5); L0 = f.L;
+    if (f.heywood) note += `<p class="note">Hauptachsen: Mindestens eine Kommunalität wurde bei ,995 gedeckelt (Heywood-Fall). Bei wenigen Antworten mit Hauptkomponenten vergleichen.</p>`;
+    if (!f.converged) note += `<p class="note">Hauptachsen: Die Kommunalitäten sind nicht ganz konvergiert.</p>`;
+  } else L0 = loadingsFrom(eig, 5);
+  const L = alignFactors(varimax(L0));
+  $("facnote").innerHTML = note;
+  let h = `<table class="mx"><thead><tr><th></th>${FACS.map((f, t) => `<th class="fac">F${t + 1}${state.names ? `<small>${f.name}</small>` : ""}</th>`).join("")}</tr></thead><tbody>`;
+  L.forEach((row, i) => {
+    const mx = row.reduce((b, v, t) => (Math.abs(v) > Math.abs(row[b]) ? t : b), 0);
+    h += `<tr><th class="row" title="${ITEMS[i].t}">${ITEMS[i].s}</th>` + row.map((v, t) => `<td class="${t === mx ? "max" : ""}" style="${cellBg(v)}" title="${ITEMS[i].s} auf F${t + 1}: ${rfmt(v)}; Folie 25: ${rfmt(S25[i][t])}">${rfmt(v)}${state.s25 ? `<small>${rfmt(S25[i][t])}</small>` : ""}</td>`).join("") + `</tr>`;
+  });
+  const ssl = FACS.map((_, t) => L.reduce((s, r) => s + r[t] ** 2, 0));
+  h += `<tr class="sum"><th class="row" style="font-weight:400;color:var(--muted)">erklärte Varianz</th>${ssl.map((v) => `<td>${(v * 10).toFixed(0)} %</td>`).join("")}</tr>`;
+  $("factable").innerHTML = h + `</tbody></table>`;
+  $("s25hint").hidden = !state.s25;
+  $("faceig").textContent = `Eigenwerte der Korrelationsmatrix: ${eig.values.map((v) => de(v)).join(" · ")}. Zusammen erklären die fünf Faktoren ${(ssl.reduce((s, v) => s + v, 0) * 10).toFixed(0)} % der Varianz.`;
+}
+
+// ---------- 3D scatter ----------
+let raf3 = 0;
+// Shared 3D frame (box 1 to 5 on every axis, orthographic, rotation in state.az / state.el). Returns the open svg plus the projection.
+function scene3D(xi, yi, zi) {
+  const D = (k) => DIMS.find((d) => d.k === k);
+  const W = 820, H = 560, S = 70, cx = W / 2, cy = H / 2 + 8;
+  const ca = Math.cos(state.az), sa = Math.sin(state.az), ce = Math.cos(state.el), se = Math.sin(state.el);
+  const P = (x, y, z) => { const X = x - 3, Y = y - 3, Z = z - 3, x1 = X * ca - Y * sa, y1 = X * sa + Y * ca; return [cx + S * x1, cy - S * (Z * ce + y1 * se), y1 * ce - Z * se]; };
+  const seg = (a, b, attr) => { const p = P(...a), q = P(...b); return `<line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${q[0].toFixed(1)}" y2="${q[1].toFixed(1)}" ${attr}/>`; };
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="3D-Streudiagramm ${D(xi).name}, ${D(yi).name}, ${D(zi).name}">`;
+  for (let v = 1; v <= 5; v++) { s += seg([v, 1, 1], [v, 5, 1], 'stroke="var(--line)"'); s += seg([1, v, 1], [5, v, 1], 'stroke="var(--line)"'); }
+  // back walls: the two vertical faces farthest from the viewer get a light grid
+  const wallX = P(1, 3, 3)[2] > P(5, 3, 3)[2] ? 1 : 5, wallY = P(3, 1, 3)[2] > P(3, 5, 3)[2] ? 1 : 5;
+  for (let v = 1; v <= 5; v++) {
+    s += seg([wallX, 1, v], [wallX, 5, v], 'stroke="var(--line)" stroke-dasharray="2 4"'); s += seg([wallX, v, 1], [wallX, v, 5], 'stroke="var(--line)" stroke-dasharray="2 4"');
+    s += seg([1, wallY, v], [5, wallY, v], 'stroke="var(--line)" stroke-dasharray="2 4"'); s += seg([v, wallY, 1], [v, wallY, 5], 'stroke="var(--line)" stroke-dasharray="2 4"');
+  }
+  // tick labels on the front edges
+  const fy = wallY === 1 ? 5 : 1, fx = wallX === 1 ? 5 : 1;
+  const lab = (pos, txt, big) => { const p = P(...pos); return `<text class="${big ? "ink" : "num"}" x="${p[0].toFixed(1)}" y="${(p[1] + 6).toFixed(1)}" text-anchor="middle" style="font-size:${big ? 21 : 17}px">${txt}</text>`; };
+  for (let v = 1; v <= 5; v++) { s += lab([v, fy + (fy === 1 ? -0.35 : 0.35), 0.75], v); s += lab([fx + (fx === 1 ? -0.35 : 0.35), v, 0.75], v); }
+  s += lab([3, fy + (fy === 1 ? -1.05 : 1.05), 0.55], D(xi).name, true);
+  s += lab([fx + (fx === 1 ? -1.05 : 1.05), 3, 0.55], D(yi).name, true);
+  // z axis on the vertical edge that sits farthest left on screen
+  const corners = [[1, 1], [1, 5], [5, 1], [5, 5]].map(([a, b]) => ({ a, b, x: P(a, b, 3)[0] })).sort((u, w) => u.x - w.x);
+  const zc = corners[0];
+  s += seg([zc.a, zc.b, 1], [zc.a, zc.b, 5], 'stroke="var(--muted)" stroke-width="1.5"');
+  for (let v = 1; v <= 5; v++) { const p = P(zc.a, zc.b, v); s += `<text class="num" x="${(p[0] - 12).toFixed(1)}" y="${(p[1] + 6).toFixed(1)}" text-anchor="end" style="font-size:17px">${v}</text>`; }
+  const zt = P(zc.a, zc.b, 5.55); s += `<text class="ink" x="${zt[0].toFixed(1)}" y="${zt[1].toFixed(1)}" text-anchor="middle" style="font-size:21px">${D(zi).name}</text>`;
+  return { s, P, seg };
+}
+// Flat counterpart with the same signature: P(x, y) gives screen coordinates and depth 0, so the 3D drawing code can be reused.
+function scene2D(xi, yi) {
+  const D = (k) => DIMS.find((d) => d.k === k);
+  const W = 820, H = 560, L = 70, R = 24, T = 20, B = 64;
+  const X = (v) => L + (v - 0.75) / 4.5 * (W - L - R), Y = (v) => H - B - (v - 0.75) / 4.5 * (H - T - B);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Streudiagramm ${D(xi).name}, ${D(yi).name}">`;
+  for (let v = 1; v <= 5; v += 0.5) {
+    const major = Number.isInteger(v), dash = major ? "" : 'stroke-dasharray="2 4"';
+    s += `<line x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${H - B}" stroke="var(--line)" ${dash}/><line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" ${dash}/>`;
+    if (major) s += `<text class="num" x="${X(v)}" y="${H - B + 26}" text-anchor="middle" style="font-size:19px">${v}</text><text class="num" x="${L - 12}" y="${Y(v) + 7}" text-anchor="end" style="font-size:19px">${v}</text>`;
+  }
+  s += `<text class="ink" x="${(L + W - R) / 2}" y="${H - 12}" text-anchor="middle" style="font-size:22px">${D(xi).name}</text>`;
+  s += `<text class="ink" transform="translate(20 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle" style="font-size:22px">${D(yi).name}</text>`;
+  return { s, P: (x, y) => [X(x), Y(y), 0] };
+}
+function render3D() {
+  const xi = $("xdim").value, yi = $("ydim").value, zi = $("zdim").value;
+  const pts = state.rows.map((r) => [r.sc[xi], r.sc[yi], r.sc[zi]]).filter((p) => p.every((v) => !isNaN(v)));
+  let { s, P, seg } = scene3D(xi, yi, zi);
+  // regression plane z = b0 + b1 x + b2 y, drawn as grid lines clipped to 1 <= z <= 5
+  let fit = null;
+  if (pts.length >= 4 && new Set([xi, yi, zi]).size === 3) {
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]), zs = pts.map((p) => p[2]);
+    const rxy = pearson(xs, ys), rxz = pearson(xs, zs), ryz = pearson(ys, zs), den = 1 - rxy * rxy;
+    if ([rxy, rxz, ryz].every(isFinite) && den > 1e-6) {
+      const b1 = (rxz - ryz * rxy) / den * sd(zs) / sd(xs), b2 = (ryz - rxz * rxy) / den * sd(zs) / sd(ys);
+      fit = { b0: mean(zs) - b1 * mean(xs) - b2 * mean(ys), b1, b2, R2: (rxz * rxz + ryz * ryz - 2 * rxy * rxz * ryz) / den };
+    }
+  }
+  const planeSeg = (a, b) => { // clip a 3D segment on the plane to the box height
+    let t0 = 0, t1 = 1; const dz = b[2] - a[2];
+    for (const [lim, sgn] of [[1, 1], [5, -1]]) { if (Math.abs(dz) < 1e-12) { if ((a[2] - lim) * sgn < 0) return ""; continue; } const t = (lim - a[2]) / dz; if (dz * sgn > 0) t0 = Math.max(t0, t); else t1 = Math.min(t1, t); }
+    if (t0 >= t1) return ""; const L = (t) => a.map((v, k) => v + (b[k] - v) * t);
+    return seg(L(t0), L(t1), 'stroke="var(--mean)" stroke-opacity=".75" stroke-width="1.8"');
+  };
+  const zf = (x, y) => fit.b0 + fit.b1 * x + fit.b2 * y;
+  const cnt = new Map(); pts.forEach((p) => { const k = p.join("|"); cnt.set(k, (cnt.get(k) || 0) + 1); });
+  const cmax = Math.max(1, ...cnt.values());
+  const marks = [...cnt].map(([k, c]) => { const v = k.split("|").map(Number), p = P(...v); return { v, c, p }; }).sort((a, b) => b.p[2] - a.p[2]);
+  marks.forEach(({ v }) => { const g = P(v[0], v[1], 1); s += `<circle cx="${g[0].toFixed(1)}" cy="${g[1].toFixed(1)}" r="3" fill="var(--muted)" fill-opacity=".28"/>`; });
+  const planeBack = [];
+  if (state.plane && fit) for (let v = 1; v <= 5; v++) {
+    for (const [a, b] of [[[v, 1, zf(v, 1)], [v, 5, zf(v, 5)]], [[1, v, zf(1, v)], [5, v, zf(5, v)]]]) { planeBack.push(planeSeg(a, b)); }
+  }
+  s += planeBack.join("");
+  const dmin = -3.2, dmax = 3.2;
+  marks.forEach(({ v, c, p }) => {
+    const op = 0.35 + 0.5 * (1 - (p[2] - dmin) / (dmax - dmin));
+    s += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${(4 + 11 * Math.sqrt(c / cmax)).toFixed(1)}" fill="var(--c1)" fill-opacity="${op.toFixed(2)}" stroke="var(--surface)" stroke-width="1.5"><title>${c} Person(en): ${xi} = ${de(v[0], 1)}, ${yi} = ${de(v[1], 1)}, ${zi} = ${de(v[2], 1)}</title></circle>`;
+  });
+  $("scatter3d").innerHTML = s + "</svg>";
+  // pairwise r
+  const rr = (a, b) => { if (a === b) return "–"; const q = pts.length >= 3 ? pearson(pts.map((p) => p[a]), pts.map((p) => p[b])) : NaN; return isFinite(q) ? rfmt(q) : "–"; };
+  const names = [xi, yi, zi];
+  $("r3").innerHTML = new Set(names).size < 3 ? `<span class="hint">Für drei Korrelationen drei verschiedene Dimensionen wählen.</span>`
+    : `<span><b>r(${xi}, ${yi})</b>${rr(0, 1)}</span><span><b>r(${xi}, ${zi})</b>${rr(0, 2)}</span><span><b>r(${yi}, ${zi})</b>${rr(1, 2)}</span><span><b>n</b>${pts.length}</span>` + (state.plane && fit ? `<span><b>R² (${zi} aus ${xi} und ${yi})</b>${rfmt(fit.R2)}</span>` : "");
+  $("rval").textContent = ""; $("rn").textContent = "";
+}
+// Which 3D view is on screen (null if none); drag and spin redraw only that one.
+function cur3D() {
+  if (state.view === "korrelation" && state.mode === "3d") return render3D;
+  if (state.view === "typen") return state.tmode === "3d" ? renderTypes3D : null;
+  if (state.view === "ungewoehnlich") return state.umode === "3d" ? renderUnusual3D : null;
+  return null;
+}
+function spinStep() { const f = cur3D(); if (!state.spin || !f) { raf3 = 0; return; } state.az += 0.006; f(); raf3 = requestAnimationFrame(spinStep); }
+function setSpin(on) { state.spin = on; document.querySelectorAll(".spinbtn").forEach((b) => b.setAttribute("aria-pressed", String(on))); if (on && !raf3) raf3 = requestAnimationFrame(spinStep); }
+
+// ---------- types (Folien 44 bis 46): k-means on z-standardized scale scores ----------
+// Prototype profiles read off the bar chart on Folie 45 (z values, rounded, order N E O V G).
+const PROTO = [
+  { name: "Resilient", z: [-0.55, 0.35, -0.13, 0.13, 0.61] },
+  { name: "Überkontrolliert", z: [0.84, -0.74, 0.05, -0.16, -0.08] },
+  { name: "Unterkontrolliert", z: [-0.05, 0.28, 0.19, -0.10, -0.95] }
+];
+const KCOL = ["var(--k1)", "var(--k2)", "var(--k3)", "var(--k4)", "var(--k5)", "var(--k6)"];
+const KSHAPE = ["circle", "square", "triangle", "diamond", "triangle-down", "cross"];
+function mulberry32(a) { return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const dist2 = (a, b) => a.reduce((s, v, j) => s + (v - b[j]) ** 2, 0);
+function kmeans(Z, k, restarts = 50, seed = 7) {
+  const n = Z.length, p = Z[0].length, rnd = mulberry32(seed); let best = null;
+  for (let r = 0; r < restarts; r++) {
+    const C = [Z[Math.floor(rnd() * n)].slice()];
+    while (C.length < k) { // k-means++ start
+      const d = Z.map((z) => Math.min(...C.map((c) => dist2(z, c)))), tot = d.reduce((a, b) => a + b, 0);
+      let u = rnd() * tot, i = 0; for (; i < n - 1; i++) { u -= d[i]; if (u <= 0) break; }
+      C.push(Z[i].slice());
+    }
+    const lab = new Array(n).fill(-1);
+    for (let it = 0; it < 200; it++) {
+      let moved = false;
+      for (let i = 0; i < n; i++) { let b = 0, bd = Infinity; for (let c = 0; c < k; c++) { const d = dist2(Z[i], C[c]); if (d < bd) { bd = d; b = c; } } if (lab[i] !== b) { lab[i] = b; moved = true; } }
+      for (let c = 0; c < k; c++) { const m = []; lab.forEach((l, i) => { if (l === c) m.push(i); }); if (m.length) for (let j = 0; j < p; j++) C[c][j] = m.reduce((s, i) => s + Z[i][j], 0) / m.length; }
+      if (!moved) break;
+    }
+    const W = Z.reduce((s, z, i) => s + dist2(z, C[lab[i]]), 0);
+    if (!best || W < best.W - 1e-9) best = { C: C.map((c) => c.slice()), lab: lab.slice(), W };
+  }
+  return best;
+}
+function bestPerm(k, cost) { let bp = null, bc = Infinity; for (const pm of perms([...Array(k).keys()])) { const c = pm.reduce((s, j, i) => s + cost(i, j), 0); if (c < bc) { bc = c; bp = pm; } } return bp; }
+function zData() { // complete cases, z-standardized within the course; idx = row numbers
+  const idx = [], X = [];
+  state.rows.forEach((r, i) => { const v = DIMS.map((d) => r.sc[d.k]); if (v.every((x) => !isNaN(x))) { idx.push(i); X.push(v); } });
+  if (X.length < 3) return { idx, X, Z: [] };
+  const m = DIMS.map((_, j) => mean(X.map((x) => x[j]))), s = DIMS.map((_, j) => sd(X.map((x) => x[j])));
+  return { idx, X, Z: X.map((x) => x.map((v, j) => (s[j] > 0 ? (v - m[j]) / s[j] : 0))), m, s };
+}
+let typeCache = null, prevCent = null, prevK = null;
+function computeTypes() {
+  const k = +$("kk").value, { idx, X, Z } = zData(), n = Z.length;
+  if (n < Math.max(10, 3 * k)) return { k, n, tooFew: true };
+  let { C, lab, W } = kmeans(Z, k);
+  // keep colours stable across live updates: match to the previous centroids; else order by Folie 45 prototypes (k = 3) or by size
+  let order;
+  if (prevCent && prevK === k) order = bestPerm(k, (i, j) => dist2(prevCent[i], C[j]));
+  else if (k === 3) order = bestPerm(3, (i, j) => dist2(PROTO[i].z, C[j]));
+  else order = [...Array(k).keys()].sort((a, b) => lab.filter((l) => l === b).length - lab.filter((l) => l === a).length);
+  const inv = []; order.forEach((j, i) => { inv[j] = i; });
+  C = order.map((j) => C[j]); lab = lab.map((l) => inv[l]);
+  prevCent = C.map((c) => c.slice()); prevK = k;
+  const T = Z.reduce((s, z) => s + z.reduce((q, v) => q + v * v, 0), 0);
+  const sizes = C.map((_, c) => lab.filter((l) => l === c).length);
+  // names: nearest Folie-45 prototype by euclidean distance (level and shape, Folie 43); one-to-one when k = 3
+  let names;
+  if (k === 3) { const pm = bestPerm(3, (i, j) => Math.sqrt(dist2(C[i], PROTO[j].z))); names = C.map((c, i) => ({ p: pm[i], d: Math.sqrt(dist2(c, PROTO[pm[i]].z)) })); }
+  else names = C.map((c) => { const ds = PROTO.map((pr) => Math.sqrt(dist2(c, pr.z))), j = ds.indexOf(Math.min(...ds)); return { p: j, d: ds[j] }; });
+  const raw = C.map((_, c) => DIMS.map((d, j) => mean(X.filter((_, i) => lab[i] === c).map((x) => x[j]))));
+  const elbow = [1, 2, 3, 4, 5, 6].filter((kk) => kk <= Math.min(6, Math.floor(n / 3))).map((kk) => ({ k: kk, ev: kk === 1 ? 0 : 1 - kmeans(Z, kk, 10, 11).W / T }));
+  return { k, n, idx, X, Z, C, lab, sizes, ev: 1 - W / T, names, raw, elbow };
+}
+const tname = (t, c) => `Typ ${c + 1}` + (state.tnames ? `: ${t.names[c].d <= 1.0 ? "" : "eher "}${PROTO[t.names[c].p].name}` : "");
+function shapeSvg(shape, x, y, r, attr) {
+  const f = (v) => v.toFixed(1);
+  if (shape === "circle") return `<circle cx="${f(x)}" cy="${f(y)}" r="${f(r)}" ${attr}/>`;
+  if (shape === "square") return `<rect x="${f(x - r * 0.88)}" y="${f(y - r * 0.88)}" width="${f(r * 1.76)}" height="${f(r * 1.76)}" ${attr}/>`;
+  const pts = { triangle: [[0, -1.15], [1, 0.75], [-1, 0.75]], "triangle-down": [[0, 1.15], [1, -0.75], [-1, -0.75]], diamond: [[0, -1.2], [1.1, 0], [0, 1.2], [-1.1, 0]], cross: [[-0.35, -1], [0.35, -1], [0.35, -0.35], [1, -0.35], [1, 0.35], [0.35, 0.35], [0.35, 1], [-0.35, 1], [-0.35, 0.35], [-1, 0.35], [-1, -0.35], [-0.35, -0.35]] }[shape];
+  return `<polygon points="${pts.map(([a, b]) => `${f(x + a * r)},${f(y + b * r)}`).join(" ")}" ${attr}/>`;
+}
+const jit = (i, d) => { const t = Math.sin((i + 1) * 12.9898 + (d + 1) * 78.233) * 43758.5453; return ((t - Math.floor(t)) - 0.5) * 0.26; };
+function renderTypes() {
+  const t = typeCache = computeTypes();
+  $("tn").textContent = `Grundlage: ${t.n} vollständige Antworten.`;
+  if (t.tooFew) {
+    $("tnote").innerHTML = `<p class="note">Für ${t.k} Typen braucht es mindestens ${Math.max(10, 3 * t.k)} vollständige Antworten (bisher ${t.n}).</p>`;
+    ["tlegend", "tprof", "telbow", "t3d"].forEach((id) => { $(id).innerHTML = ""; }); $("tstats").innerHTML = ""; return;
+  }
+  $("tnote").innerHTML = smallNote(t.n, "Typen");
+  $("tlegend").innerHTML = t.C.map((_, c) => `<span><svg width="18" height="18" style="vertical-align:middle;margin-right:.35rem">${shapeSvg(KSHAPE[c], 9, 9, 6.5, `fill="${KCOL[c]}"`)}</svg><b>${tname(t, c)}</b>&nbsp; ${(t.sizes[c] / t.n * 100).toFixed(0)} %</span>`).join("");
+  $("tlegend").querySelectorAll("span").forEach((el, c) => { el.title = `n = ${t.sizes[c]}` + (state.tnames ? `, Distanz zum Prototyp ${de(t.names[c].d)}` : ""); });
+  const series = t.C.map((c, i) => ({ vals: c, color: KCOL[i], name: tname(t, i) }));
+  const pcol = (i) => { const c = t.k === 3 ? t.names.findIndex((nm) => nm.p === i) : -1; return c >= 0 ? KCOL[c] : "var(--muted)"; };
+  const protos = state.tproto ? PROTO.map((p, i) => ({ vals: p.z, color: pcol(i), name: p.name + " (Folie 45)", dash: true })) : [];
+  $("tprof").innerHTML = profileChart([...protos, ...series], -2, 2, true);
+  $("tprofhint").textContent = "Mittelwertprofil jedes Typs in z-Werten (0 = Kursmittel, graues Band = ±1)." + (state.tproto ? " Gestrichelt: Prototypen von Folie 45 (abgelesen, gerundet)" + (t.k === 3 ? ", in der Farbe des ähnlichsten Typs." : ".") : "");
+  $("tstats").innerHTML = `<span><b>erklärte Unterschiede</b>${(t.ev * 100).toFixed(0)} %</span>`;
+  // elbow chart
+  const Wd = 520, Hd = 200, L = 46, R = 14, T = 14, B = 34, kmax = t.elbow.length;
+  const X = (k) => L + (k - 1) / Math.max(1, kmax - 1) * (Wd - L - R), Y = (v) => Hd - B - v * (Hd - T - B);
+  let s = svgEl(Wd, Hd);
+  [0, 0.25, 0.5, 0.75, 1].forEach((v) => { s += `<line x1="${L}" x2="${Wd - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text class="num" x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${v * 100} %</text>`; });
+  s += `<polyline points="${t.elbow.map((e) => `${X(e.k)},${Y(e.ev)}`).join(" ")}" fill="none" stroke="var(--c1)" stroke-width="3"/>`;
+  t.elbow.forEach((e) => { const on = e.k === t.k; s += `<circle cx="${X(e.k)}" cy="${Y(e.ev)}" r="${on ? 8 : 5}" fill="${on ? "var(--ink)" : "var(--c1)"}" stroke="var(--surface)" stroke-width="2"><title>k = ${e.k}: ${(e.ev * 100).toFixed(0)} %</title></circle><text class="num" x="${X(e.k)}" y="${Hd - B + 20}" text-anchor="middle">${e.k}</text>`; });
+  s += `<text x="${(L + Wd - R) / 2}" y="${Hd - 2}" text-anchor="middle">Anzahl Typen k</text>`;
+  $("telbow").innerHTML = s + "</svg>";
+  if (state.view === "typen") renderTypes3D();
+}
+function renderTypes3D() {
+  const t = typeCache; if (!t || t.tooFew) { $("t3d").innerHTML = ""; return; }
+  const xi = $("tx").value, yi = $("ty").value, zi = $("tz").value, J = DIMS.map((d) => d.k), flat = state.tmode === "2d";
+  let { s, P } = flat ? scene2D(xi, yi) : scene3D(xi, yi, zi);
+  const ax = [J.indexOf(xi), J.indexOf(yi), J.indexOf(zi)];
+  const marks = t.X.map((x, i) => { const v = ax.map((a, d) => x[a] + jit(t.idx[i], d)); return { v, p: P(...v), c: t.lab[i], who: t.idx[i] }; });
+  if (!flat) marks.forEach(({ v }) => { const g = P(v[0], v[1], 1); s += `<circle cx="${g[0].toFixed(1)}" cy="${g[1].toFixed(1)}" r="2.5" fill="var(--muted)" fill-opacity=".25"/>`; });
+  const cents = t.raw.map((r, c) => { const v = ax.map((a) => r[a]); return { v, p: P(...v), c, cent: true }; });
+  [...marks.sort((a, b) => b.p[2] - a.p[2]), ...cents].forEach((m) => { // type means always drawn on top
+    if (m.cent) { s += shapeSvg(KSHAPE[m.c], m.p[0], m.p[1], 15, `fill="${KCOL[m.c]}" stroke="var(--ink)" stroke-width="3"`) + `<text class="ink" x="${(m.p[0] + 18).toFixed(1)}" y="${(m.p[1] - 12).toFixed(1)}" style="font-size:20px;font-weight:700">${m.c + 1}</text>`; return; }
+    s += shapeSvg(KSHAPE[m.c], m.p[0], m.p[1], flat ? 7.5 : 6.5, `fill="${KCOL[m.c]}" fill-opacity=".85" stroke="var(--surface)" stroke-width="1.5"`).replace("/>", `><title>Person ${m.who + 1}: ${tname(t, m.c)}</title></${KSHAPE[m.c] === "circle" ? "circle" : KSHAPE[m.c] === "square" ? "rect" : "polygon"}>`);
+  });
+  $("t3d").innerHTML = s + "</svg>";
+}
+
+// ---------- unusualness: Mahalanobis distance on the five scale scores ----------
+function lgamma(x) { const g = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5]; let y = x, tmp = x + 5.5; tmp -= (x + 0.5) * Math.log(tmp); let ser = 1.000000000190015; for (const c of g) ser += c / ++y; return -tmp + Math.log(2.5066282746310005 * ser / x); }
+function gammaP(a, x) { // regularized lower incomplete gamma
+  if (x <= 0) return 0;
+  if (x < a + 1) { let sum = 1 / a, del = sum, ap = a; for (let n = 0; n < 500; n++) { ap += 1; del *= x / ap; sum += del; if (Math.abs(del) < Math.abs(sum) * 1e-14) break; } return sum * Math.exp(-x + a * Math.log(x) - lgamma(a)); }
+  let b = x + 1 - a, c = 1 / 1e-300, d = 1 / b, h = d; // continued fraction for Q
+  for (let i = 1; i < 500; i++) { const an = -i * (i - a); b += 2; d = an * d + b; if (Math.abs(d) < 1e-300) d = 1e-300; c = b + an / c; if (Math.abs(c) < 1e-300) c = 1e-300; d = 1 / d; const del = d * c; h *= del; if (Math.abs(del - 1) < 1e-14) break; }
+  return 1 - Math.exp(-x + a * Math.log(x) - lgamma(a)) * h;
+}
+const chi2p = (x, df) => 1 - gammaP(df / 2, x / 2); // upper tail
+const CHI2_5 = { ".05": 11.0705, ".025": 12.8325, ".01": 15.0863 }; // critical values, df = 5
+// Unusualness colours: matplotlib "cividis", as in Figure 3 of Hätscher et al. (2026): dark = low, yellow = high, min-max normalised.
+const CIVIDIS = ["#00224e", "#083370", "#35456c", "#4f576c", "#666970", "#7d7c78", "#948e77", "#aea371", "#c8b866", "#e5cf52", "#fee838"];
+function civ(t) {
+  t = Math.max(0, Math.min(1, isFinite(t) ? t : 0)); const x = t * 10, i = Math.min(9, Math.floor(x)), f = x - i;
+  const h = (c) => [1, 3, 5].map((k) => parseInt(c.slice(k, k + 2), 16)), a = h(CIVIDIS[i]), b = h(CIVIDIS[i + 1]);
+  return `rgb(${a.map((v, k) => Math.round(v + (b[k] - v) * f)).join(",")})`;
+}
+const civGradient = () => `linear-gradient(90deg, ${CIVIDIS.join(", ")})`;
+let unCache = null;
+function computeUnusual() {
+  const { idx, X, Z } = zData(), n = X.length;
+  if (n < 12) return { n, tooFew: true };
+  const m = DIMS.map((_, j) => mean(X.map((x) => x[j])));
+  const S = DIMS.map((_, a) => DIMS.map((_, b) => X.reduce((s, x) => s + (x[a] - m[a]) * (x[b] - m[b]), 0) / (n - 1)));
+  const Si = invert(S); if (!Si) return { n, singular: true };
+  const D2 = X.map((x) => { const d = x.map((v, j) => v - m[j]); return d.reduce((s, da, a) => s + da * d.reduce((q, db, b) => q + Si[a][b] * db, 0), 0); });
+  const crit = CHI2_5[$("ualpha").value];
+  return { n, idx, X, Z, D2, p: D2.map((v) => chi2p(v, 5)), crit, alpha: +$("ualpha").value };
+}
+function renderUnusual() {
+  const u = unCache = computeUnusual();
+  $("un").textContent = `Grundlage: ${u.n} vollständige Antworten. Grenze: D² > ${u.crit ? de(u.crit) : "–"} (χ², 5 Freiheitsgrade).`;
+  if (u.tooFew || u.singular) {
+    $("unote").innerHTML = `<p class="note">${u.tooFew ? `Für die Mahalanobis-Distanz braucht es mindestens 12 vollständige Antworten (bisher ${u.n}).` : "Die Kovarianzmatrix ist nicht invertierbar (z. B. eine Dimension ohne Streuung)."}</p>`;
+    ["u3d", "uhist", "ulist", "ucbar"].forEach((id) => { $(id).innerHTML = ""; }); $("ustats").innerHTML = ""; return;
+  }
+  const out = u.D2.filter((v) => v > u.crit).length;
+  $("unote").innerHTML = smallNote(u.n, "Distanzen");
+  $("ustats").innerHTML = `<span><b>jenseits der Grenze</b>${out} von ${u.n}</span><span class="pv"><b>erwartet</b>${de(u.n * u.alpha, 1)}</span>`;
+  // histogram of D² with the chi-square(5) density
+  const bw = 2, top = Math.max(24, Math.ceil(Math.max(...u.D2) / bw) * bw), nb = top / bw;
+  const counts = new Array(nb).fill(0); u.D2.forEach((v) => { counts[Math.min(nb - 1, Math.floor(v / bw))]++; });
+  const dens = (x) => Math.exp(1.5 * Math.log(x) - x / 2 - 2.5 * Math.log(2) - lgamma(2.5));
+  const W = 560, H = 250, L = 40, R = 12, T = 14, B = 38;
+  const ymax = Math.max(1, ...counts, ...Array.from({ length: 60 }, (_, i) => dens((i + 0.5) * top / 60) * u.n * bw));
+  const X = (x) => L + x / top * (W - L - R), Y = (c) => H - B - c / ymax * (H - T - B);
+  let s = svgEl(W, H);
+  const step = ymax <= 6 ? 1 : ymax <= 15 ? 2 : ymax <= 40 ? 5 : 10;
+  for (let c = 0; c <= ymax; c += step) s += `<line x1="${L}" x2="${W - R}" y1="${Y(c)}" y2="${Y(c)}" stroke="var(--line)"/><text class="num" x="${L - 6}" y="${Y(c) + 4}" text-anchor="end">${c}</text>`;
+  counts.forEach((c, i) => { const x0 = X(i * bw) + 1.5, x1 = X((i + 1) * bw) - 1.5; s += `<rect x="${x0}" y="${Y(c)}" width="${x1 - x0}" height="${H - B - Y(c)}" rx="1" fill="${civ(((i + 0.5) * bw - Math.min(...u.D2)) / (Math.max(...u.D2) - Math.min(...u.D2)))}" stroke="#000" stroke-opacity=".35"><title>D² ${i * bw} bis ${(i + 1) * bw}: ${c}</title></rect>`; });
+  for (let x = 0; x <= top; x += 4) s += `<text class="num" x="${X(x)}" y="${H - B + 18}" text-anchor="middle">${x}</text>`;
+  s += `<polyline points="${Array.from({ length: 121 }, (_, i) => { const x = Math.max(0.01, i * top / 120); return `${X(x).toFixed(1)},${Y(dens(x) * u.n * bw).toFixed(1)}`; }).join(" ")}" fill="none" stroke="var(--ink)" stroke-width="2.5"/>`;
+  s += `<line x1="${X(u.crit)}" x2="${X(u.crit)}" y1="${T - 4}" y2="${H - B}" stroke="var(--mean)" stroke-width="2.5" stroke-dasharray="6 5"/><text x="${X(u.crit) + 6}" y="${T + 10}" style="fill:var(--mean)">Grenze</text>`;
+  s += `<text x="${(L + W - R) / 2}" y="${H - 2}" text-anchor="middle">Mahalanobis-Distanz D²</text>`;
+  $("uhist").innerHTML = s + "</svg>";
+  // most unusual persons
+  const J = DIMS.map((d) => d.k);
+  const order = u.D2.map((v, i) => i).sort((a, b) => u.D2[b] - u.D2[a]).slice(0, 6);
+  $("ulist").innerHTML = `<table class="ulist"><thead><tr><th>Person</th><th>D²</th><th>p</th><th>größtes |z|</th><th></th></tr></thead><tbody>` + order.map((i) => {
+    const z = u.Z[i], jm = z.reduce((b, v, j) => (Math.abs(v) > Math.abs(z[b]) ? j : b), 0);
+    const sw = `<span class="sw" style="background:${civ((u.D2[i] - Math.min(...u.D2)) / (Math.max(...u.D2) - Math.min(...u.D2)))}"></span>`;
+    return `<tr class="${u.D2[i] > u.crit ? "hit" : ""}"><td>${sw}${u.idx[i] + 1}</td><td>${de(u.D2[i], 1)}</td><td>${u.p[i] < 0.001 ? "< ,001" : de(u.p[i], 3).replace(/^0/, "")}</td><td>${de(z[jm], 1)} (${J[jm]})</td><td><button class="btn" type="button" data-person="${u.idx[i]}">Profil</button></td></tr>`;
+  }).join("") + `</tbody></table>`;
+  $("ulist").querySelectorAll("[data-person]").forEach((b) => { b.onclick = () => { state.sel = [+b.dataset.person, null, null]; location.hash = "profile"; }; });
+  if (state.view === "ungewoehnlich") renderUnusual3D();
+}
+function renderUnusual3D() {
+  const u = unCache; if (!u || u.tooFew || u.singular) { $("u3d").innerHTML = ""; return; }
+  const xi = $("ux").value, yi = $("uy").value, zi = $("uz").value, J = DIMS.map((d) => d.k), flat = state.umode === "2d";
+  let { s, P } = flat ? scene2D(xi, yi) : scene3D(xi, yi, zi);
+  const ax = [J.indexOf(xi), J.indexOf(yi), J.indexOf(zi)];
+  const marks = u.X.map((x, i) => { const v = ax.map((a, d) => x[a] + jit(u.idx[i], d)); return { v, p: P(...v), i }; });
+  if (!flat) marks.forEach(({ v }) => { const g = P(v[0], v[1], 1); s += `<circle cx="${g[0].toFixed(1)}" cy="${g[1].toFixed(1)}" r="2.5" fill="var(--muted)" fill-opacity=".25"/>`; });
+  const mc = DIMS.map((_, j) => mean(u.X.map((x) => x[j]))), cp = P(...ax.map((a) => mc[a]));
+  const items = flat ? [...marks.sort((a, b) => u.D2[a.i] - u.D2[b.i]), { p: cp, center: true }] : [...marks, { p: cp, center: true }].sort((a, b) => b.p[2] - a.p[2]);
+  const lo = Math.min(...u.D2), hi = Math.max(...u.D2) || 1;
+  items.forEach((m) => {
+    if (m.center) { s += `<g stroke="var(--ink)" stroke-width="3.5"><line x1="${cp[0] - 13}" y1="${cp[1]}" x2="${cp[0] + 13}" y2="${cp[1]}"/><line x1="${cp[0]}" y1="${cp[1] - 13}" x2="${cp[0]}" y2="${cp[1] + 13}"/></g>`; return; }
+    const d2 = u.D2[m.i], hit = d2 > u.crit;
+    s += `<circle cx="${m.p[0].toFixed(1)}" cy="${m.p[1].toFixed(1)}" r="${hit ? 10 : 7}" fill="${civ((d2 - lo) / (hi - lo))}" fill-opacity=".92" stroke="#000" stroke-opacity="${hit ? 1 : 0.55}" stroke-width="${hit ? 3 : 0.9}"><title>Person ${u.idx[m.i] + 1}: D² = ${de(d2, 1)}, p = ${de(u.p[m.i], 3)}</title></circle>`;
+    if (hit) s += `<text class="ink" x="${(m.p[0] + 12).toFixed(1)}" y="${(m.p[1] - 8).toFixed(1)}" style="font-size:16px;font-weight:700">${u.idx[m.i] + 1}</text>`;
+  });
+  $("u3d").innerHTML = s + "</svg>";
+  $("ucbar").innerHTML = `<span>${de(lo, 1)}</span><i style="background:${civGradient()}"></i><span>${de(hi, 1)}</span><b>D²: unauffällig bis ungewöhnlich</b>`;
+}
+
+function zStats() {
+  const st = {}; for (const d of DIMS) { const v = state.rows.map((r) => r.sc[d.k]).filter((x) => !isNaN(x)); st[d.k] = { m: mean(v), s: sd(v) }; }
+  return st;
+}
+function profileChart(series, ymin, ymax, band) {
+  const W = 560, H = 330, L = 48, R = 16, T = 16, B = 46;
+  const X = (i) => L + (i + 0.5) * ((W - L - R) / DIMS.length), Y = (v) => H - B - (v - ymin) / (ymax - ymin) * (H - T - B);
+  let s = svgEl(W, H);
+  if (band) s += `<rect x="${L}" y="${Y(1)}" width="${W - L - R}" height="${Y(-1) - Y(1)}" fill="var(--line)" opacity=".55"/>`;
+  for (let v = Math.ceil(ymin); v <= ymax; v++) s += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text class="num" x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${v < 0 ? "−" + -v : v}</text>`;
+  DIMS.forEach((d, i) => { s += `<text class="ink" x="${X(i)}" y="${H - B + 22}" text-anchor="middle" style="font-size:16px">${d.k}</text>`; });
+  series.forEach(({ vals, color, name, dash }) => {
+    const pts = vals.map((v, i) => (isNaN(v) ? null : [X(i), Y(Math.max(ymin, Math.min(ymax, v)))])).filter(Boolean);
+    s += `<polyline points="${pts.map((p) => p.join(",")).join(" ")}" fill="none" stroke="${color}" stroke-width="${dash ? 2.5 : 4}" stroke-linejoin="round"${dash ? ' stroke-dasharray="7 6"' : ""}/>`;
+    pts.forEach((p, k) => { s += `<circle cx="${p[0]}" cy="${p[1]}" r="${dash ? 3.5 : 6}" fill="${color}"><title>${name}</title></circle>`; });
+  });
+  return s + "</svg>";
+}
+function renderProfiles() {
+  const n = state.rows.length;
+  ["pa", "pb", "pc"].forEach((id, k) => {
+    const sel = $(id), cur = state.sel[k];
+    sel.innerHTML = (k === 2 ? `<option value="">keine</option>` : "") + state.rows.map((_, i) => `<option value="${i}">Person ${i + 1}</option>`).join("");
+    sel.value = cur == null ? "" : String(cur);
+  });
+  const zs = zStats(), colors = ["var(--c1)", "var(--c2)", "var(--c3)"];
+  const chosen = state.sel.map((v, k) => (v == null || v >= n ? null : { i: v, color: colors[k], name: "Person " + (v + 1) })).filter(Boolean);
+  $("plegend").innerHTML = chosen.map((c) => `<span><i style="background:${c.color}"></i>${c.name}</span>`).join("");
+  $("praw").innerHTML = profileChart(chosen.map((c) => ({ ...c, vals: DIMS.map((d) => state.rows[c.i].sc[d.k]) })), 1, 5, false);
+  const zv = (i) => DIMS.map((d) => (state.rows[i].sc[d.k] - zs[d.k].m) / zs[d.k].s);
+  $("pz").innerHTML = profileChart(chosen.map((c) => ({ ...c, vals: zv(c.i) })), -3, 3, true);
+  const box = $("pcompare");
+  if (chosen.length >= 2) {
+    const a = zv(chosen[0].i), b = zv(chosen[1].i);
+    const ok = a.every(isFinite) && b.every(isFinite);
+    const r = ok ? pearson(a, b) : NaN, dist = ok ? Math.sqrt(a.reduce((s, v, k) => s + (v - b[k]) ** 2, 0)) : NaN;
+    box.innerHTML = `<h2>${chosen[0].name} und ${chosen[1].name} (z-Werte)</h2><div class="stats"><span><b>Profilkorrelation r</b>${isFinite(r) ? rfmt(r) : "–"}</span><span><b>Euklidische Distanz</b>${isFinite(dist) ? de(dist) : "–"}</span></div>`;
+  } else box.innerHTML = `<p class="empty">Zwei Personen wählen, dann erscheinen Profilkorrelation und euklidische Distanz.</p>`;
+}
+
+function render() {
+  $("nbig").innerHTML = `${state.rows.length}<small>Antworten</small>`;
+  document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.view === state.view)));
+  VIEWS.forEach((v) => { $("v-" + v).hidden = v !== state.view; });
+  const m3 = state.mode === "3d";
+  $("mode2").setAttribute("aria-pressed", String(!m3)); $("mode3").setAttribute("aria-pressed", String(m3));
+  $("wrap2").hidden = m3; $("wrap3").hidden = !m3; $("zlab").hidden = !m3; $("ctl3").hidden = !m3;
+  renderSample(); renderItems(); renderFactors(); renderDists(); renderScatter(); renderProfiles(); renderTypes(); renderUnusual();
+  if (m3 && state.view === "korrelation") render3D();
+  if (state.spin && !raf3 && cur3D()) raf3 = requestAnimationFrame(spinStep);
+}
+
+// ---------- live data: Google Sheet published as CSV ("Im Web veröffentlichen") ----------
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTE7vDotWSrRs-BzxyaFWKpcijprboSW--YLS2rPu53g4adAHlcdQYMChfGTXdCQUfpkvtYZPO6Q0rU/pub?gid=1287194563&single=true&output=csv";
+const POLL_MS = 30000;
+let timer = null, lastCsv = null, busy = false;
+const clock = () => new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+async function fetchCsv() {
+  const res = await fetch(CSV_URL + "&t=" + Date.now(), { cache: "no-store" });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  const txt = (await res.text()).replace(/^\uFEFF/, "");
+  if (/^\s*</.test(txt)) throw new Error("keine CSV-Antwort");
+  return txt;
+}
+async function refreshOnce(quiet) {
+  if (busy) return;
+  busy = true;
+  if (!quiet) setStatus("Aktualisiere …");
+  try {
+    const csv = await fetchCsv();
+    const label = "Live: Antworten aus dem Formular · abgerufen " + clock();
+    if (csv === lastCsv && state.src.kind === "sheet") { // unchanged: keep the views as they are
+      setSource("sheet", label);
+      if (!quiet || $("status").className === "warn") setStatus(state.rows.length ? "" : "Verbunden. Noch keine Antworten; die Ansicht füllt sich, sobald das Formular ausgefüllt wird.");
+    } else {
+      lastCsv = csv;
+      if (load(parseCSV(csv), "sheet", label) && state.rows.length) setStatus("");
+    }
+  } catch (e) {
+    setStatus(state.src.kind === "sheet" ? "Aktualisieren klappt gerade nicht, die letzten Daten bleiben sichtbar." : "Die Kursdaten konnten nicht geladen werden. Unter „Datenquelle“ gibt es simulierte Daten.", true);
+  } finally { busy = false; }
+}
+function stopLive() { if (timer) { clearInterval(timer); timer = null; } $("live").setAttribute("aria-pressed", "false"); $("live").textContent = "Live: aus"; }
+function startLive() {
+  stopLive();
+  refreshOnce();
+  timer = setInterval(() => { if (!document.hidden) refreshOnce(true); }, POLL_MS);
+  $("live").setAttribute("aria-pressed", "true"); $("live").textContent = "Live: alle 30 s";
+  $("srcpanel").open = false;
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden && timer) refreshOnce(true); });
+
+// ---------- CSV file ----------
+function readFile(file) {
+  if (!file) return;
+  const fr = new FileReader();
+  fr.onload = () => { stopLive(); if (load(parseCSV(String(fr.result).replace(/^﻿/, "")), "csv", file.name)) setStatus(""); };
+  fr.readAsText(file, "utf-8");
+}
+$("csv").addEventListener("change", (e) => readFile(e.target.files[0]));
+const drop = $("drop");
+["dragenter", "dragover"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", (e) => readFile(e.dataTransfer.files[0]));
+
+// ---------- wiring ----------
+for (const id of ["xdim", "ydim", "zdim", "tx", "ty", "tz", "ux", "uy", "uz"]) $(id).innerHTML = DIMS.map((d) => `<option value="${d.k}">${d.name}</option>`).join("");
+$("tx").value = "N"; $("ty").value = "E"; $("tz").value = "G"; $("ux").value = "N"; $("uy").value = "E"; $("uz").value = "G";
+["tx", "ty", "tz"].forEach((id) => { $(id).onchange = renderTypes3D; });
+["ux", "uy", "uz"].forEach((id) => { $(id).onchange = renderUnusual3D; });
+$("kk").onchange = () => { prevCent = null; renderTypes(); };
+$("ualpha").onchange = renderUnusual;
+$("tspin").onclick = $("uspin").onclick = () => setSpin(!state.spin);
+function setFlat(p, key, mode, draw) { // 2D/3D switch for the Typen ("t") and Ungewöhnlichkeit ("u") views
+  state[key] = mode; const flat = mode === "2d";
+  $(p + "2").setAttribute("aria-pressed", String(flat)); $(p + "3").setAttribute("aria-pressed", String(!flat));
+  $(p + "zlab").hidden = flat; $(p + "spin").hidden = flat; $(p + "3d").classList.toggle("d3", !flat);
+  if (flat) setSpin(false);
+  draw();
+}
+$("t2").onclick = () => setFlat("t", "tmode", "2d", renderTypes3D); $("t3").onclick = () => setFlat("t", "tmode", "3d", renderTypes3D);
+$("u2").onclick = () => setFlat("u", "umode", "2d", renderUnusual3D); $("u3").onclick = () => setFlat("u", "umode", "3d", renderUnusual3D);
+$("xdim").value = "E"; $("ydim").value = "N"; $("zdim").value = "G";
+$("xdim").onchange = $("ydim").onchange = $("zdim").onchange = () => { renderScatter(); if (state.mode === "3d") render3D(); };
+const toggle = (id, key, fn) => { $(id).onclick = () => { state[key] = !state[key]; $(id).setAttribute("aria-pressed", String(state[key])); fn(); }; };
+toggle("pairs", "pairs", renderItems);
+toggle("slide23", "s23", renderItems);
+toggle("names", "names", renderFactors);
+toggle("slide25", "s25", renderFactors);
+toggle("plane", "plane", render3D);
+toggle("tnames", "tnames", renderTypes);
+toggle("tproto", "tproto", renderTypes);
+$("method").onchange = renderFactors;
+$("prev").onchange = (e) => { state.prev = e.target.checked; try { localStorage.setItem("kursdaten.prev", state.prev ? "1" : "0"); } catch (err) {} render(); };
+$("mode2").onclick = () => { setSpin(false); location.hash = "korrelation"; };
+$("mode3").onclick = () => { location.hash = "korrelation-3d"; };
+$("spin").onclick = () => setSpin(!state.spin);
+$("reset3").onclick = () => { state.az = -0.65; state.el = 0.42; render3D(); };
+document.querySelectorAll(".d3").forEach((box) => { // drag to rotate
+  let drag = null, pending = 0;
+  box.addEventListener("pointerdown", (e) => { drag = { x: e.clientX, y: e.clientY }; box.setPointerCapture(e.pointerId); setSpin(false); });
+  box.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    state.az += (e.clientX - drag.x) * 0.01; state.el = Math.max(0.05, Math.min(1.45, state.el + (e.clientY - drag.y) * 0.008));
+    drag = { x: e.clientX, y: e.clientY };
+    if (!pending) pending = requestAnimationFrame(() => { pending = 0; const f = cur3D(); if (f) f(); });
+  });
+  const end = () => { drag = null; };
+  box.addEventListener("pointerup", end); box.addEventListener("pointercancel", end);
+});
+["pa", "pb", "pc"].forEach((id, k) => { $(id).onchange = (e) => { state.sel[k] = e.target.value === "" ? null : +e.target.value; renderProfiles(); }; });
+$("rand2").onclick = () => { const n = state.rows.length; if (n < 2) return; const a = Math.floor(Math.random() * n); let b = Math.floor(Math.random() * (n - 1)); if (b >= a) b++; state.sel = [a, b, null]; renderProfiles(); };
+$("refresh").onclick = () => refreshOnce(false);
+$("live").onclick = () => (timer ? stopLive() : startLive());
+$("demo").onclick = () => { stopLive(); prevCent = null; state.simSeed++; simulate($("simmode").value, state.simSeed); $("srcpanel").open = false; };
+$("simmode").onchange = () => { stopLive(); prevCent = null; simulate($("simmode").value, state.simSeed); };
+document.querySelectorAll(".tab").forEach((t) => { t.onclick = () => { location.hash = t.dataset.view === "korrelation" && state.mode === "3d" ? "korrelation-3d" : t.dataset.view; }; });
+function route() {
+  const h = location.hash.slice(1);
+  if (h === "korrelation-3d") { state.view = "korrelation"; state.mode = "3d"; }
+  else { state.view = VIEWS.includes(h) ? h : "stichprobe"; if (h === "korrelation") state.mode = "2d"; }
+  if (!cur3D()) setSpin(false);
+  render();
+}
+window.addEventListener("hashchange", route);
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+
+try { if (localStorage.getItem("kursdaten.prev") === "0") { state.prev = false; $("prev").checked = false; } } catch (e) {}
+state.sel = [null, null, null];
+setStatus("Lade Kursdaten …");
+route();
+startLive();
+</script>
+</body>
+</html>
