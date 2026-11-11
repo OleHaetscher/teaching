@@ -157,7 +157,7 @@ svg.chart .ink { fill: var(--ink); }
 .r3 { display: flex; flex-wrap: wrap; gap: .3rem 1.6rem; font-size: 1.5rem; font-weight: 600; }
 .r3 b { font-weight: 400; color: var(--muted); font-size: 1rem; margin-right: .35rem; }
 
-/* correlation and loading tables in the look of Folie 24 and 25 */
+/* correlation and loading tables in the look of the slides */
 .tablewrap { overflow-x: auto; }
 table.mx { border-collapse: separate; border-spacing: 2px; margin: 0 auto; }
 table.mx thead th { background: var(--fill); }
@@ -226,14 +226,14 @@ footer { font-size: .95rem; color: var(--muted); }
 
   <div class="navrow">
     <nav class="tabs" role="tablist" aria-label="Ansichten">
-      <button class="tab" role="tab" data-view="stichprobe" type="button" title="Folie 7">Stichprobe</button>
-      <button class="tab" role="tab" data-view="interkorrelationen" type="button" title="Folie 24">Interkorrelationen</button>
-      <button class="tab" role="tab" data-view="faktorladungen" type="button" title="Folie 26">Faktorladungen</button>
-      <button class="tab" role="tab" data-view="verteilungen" type="button" title="Folien 29 bis 31">Verteilungen</button>
-      <button class="tab" role="tab" data-view="korrelation" type="button" title="Folie 32">Korrelation</button>
-      <button class="tab" role="tab" data-view="profile" type="button" title="Folien 40 bis 42">Profile</button>
-      <button class="tab" role="tab" data-view="typen" type="button" title="Folien 43 bis 45">Typen</button>
-      <button class="tab" role="tab" data-view="ungewoehnlich" type="button" title="Folien 46 und 47">Ungewöhnlichkeit</button>
+      <button class="tab" role="tab" data-view="stichprobe" type="button">Stichprobe</button>
+      <button class="tab" role="tab" data-view="interkorrelationen" type="button">Interkorrelationen</button>
+      <button class="tab" role="tab" data-view="faktorladungen" type="button">Faktorladungen</button>
+      <button class="tab" role="tab" data-view="verteilungen" type="button">Verteilungen</button>
+      <button class="tab" role="tab" data-view="korrelation" type="button">Korrelation</button>
+      <button class="tab" role="tab" data-view="profile" type="button">Profile</button>
+      <button class="tab" role="tab" data-view="typen" type="button">Typen</button>
+      <button class="tab" role="tab" data-view="ungewoehnlich" type="button">Ungewöhnlichkeit</button>
     </nav>
     <label class="switch" for="prev"><input type="checkbox" id="prev" checked>Vorjahr zeigen</label>
   </div>
@@ -245,7 +245,7 @@ footer { font-size: .95rem; color: var(--muted); }
       <div class="card"><h2>Geschlecht, WiSe 2025/26</h2><div id="gender"></div></div>
     </div>
     <details class="more"><summary>Erläuterung</summary><div class="moretext">
-      <p>Werte des letzten Jahrgangs von Folie 7 (n = 140). Alter und Geschlecht werden in diesem Jahr nicht erhoben, damit sich niemand über diese Angaben in den veröffentlichten Antworten wiederfinden lässt.</p>
+      <p>Werte des letzten Jahrgangs von der Folie (n = 140). Alter und Geschlecht werden in diesem Jahr nicht erhoben, damit sich niemand über diese Angaben in den veröffentlichten Antworten wiederfinden lässt.</p>
     </div></details>
   </section>
 
@@ -254,7 +254,7 @@ footer { font-size: .95rem; color: var(--muted); }
       <div class="controls" style="margin-bottom:.6rem">
         <h2 style="margin:0">Interkorrelationen der zehn Aussagen</h2>
         <button class="btn" id="pairs" type="button" aria-pressed="false">Paare markieren</button>
-        <button class="btn" id="slide23" type="button" aria-pressed="false">Folie 24 zum Vergleich</button>
+        <button class="btn" id="slide23" type="button" aria-pressed="false">Folie zum Vergleich</button>
       </div>
       <div id="itemnote"></div>
       <div class="tablewrap" id="itemtable"></div>
@@ -263,8 +263,8 @@ footer { font-size: .95rem; color: var(--muted); }
     </div>
     <details class="more"><summary>Erläuterung</summary><div class="moretext">
       <p id="itemn"></p>
-      <p>Rohantworten 1 bis 5, nicht umgepolt; Reihenfolge und Kurzlabels wie auf Folie 24. Die vollen Aussagen erscheinen beim Darüberfahren. Ein negatives r heißt hier oft nur, dass eine der beiden Aussagen umgekehrt formuliert ist. Je kräftiger die Farbe, desto stärker die Korrelation.</p>
-      <p id="s23hint" hidden>Kleine graue Zahl: Wert auf Folie 24.</p>
+      <p>Rohantworten 1 bis 5, nicht umgepolt; Reihenfolge und Kurzlabels wie auf der Folie. Die vollen Aussagen erscheinen beim Darüberfahren. Ein negatives r heißt hier oft nur, dass eine der beiden Aussagen umgekehrt formuliert ist. Je kräftiger die Farbe, desto stärker die Korrelation.</p>
+      <p id="s23hint" hidden>Kleine graue Zahl: Wert auf der Folie.</p>
     </div></details>
   </section>
 
@@ -273,16 +273,16 @@ footer { font-size: .95rem; color: var(--muted); }
       <div class="controls" style="margin-bottom:.6rem">
         <h2 style="margin:0">Faktorladungen</h2>
         <button class="btn" id="names" type="button" aria-pressed="false">Faktoren benennen</button>
-        <button class="btn" id="slide25" type="button" aria-pressed="false">Folie 26 zum Vergleich</button>
+        <button class="btn" id="slide25" type="button" aria-pressed="false">Folie zum Vergleich</button>
       </div>
       <div id="facnote"></div>
       <div class="tablewrap" id="factable"></div>
     </div>
     <details class="more"><summary>Erläuterung</summary><div class="moretext">
       <p id="facn"></p>
-      <p>Fünf Faktoren, Varimax-rotiert. Fett: höchste Ladung jeder Aussage. Die Reihenfolge F1 bis F5 folgt Folie 26 (N, E, O, V, G); zugeordnet wird über die beiden Aussagen jeder Dimension, das Vorzeichen so, dass die positiv formulierte Aussage positiv lädt.</p>
+      <p>Fünf Faktoren, Varimax-rotiert. Fett: höchste Ladung jeder Aussage. Die Reihenfolge F1 bis F5 folgt der Folie (N, E, O, V, G); zugeordnet wird über die beiden Aussagen jeder Dimension, das Vorzeichen so, dass die positiv formulierte Aussage positiv lädt.</p>
       <p id="faceig"></p>
-      <p id="s25hint" hidden>Kleine graue Zahl: Wert auf Folie 26.</p>
+      <p id="s25hint" hidden>Kleine graue Zahl: Wert auf der Folie.</p>
       <p><label class="switch" style="color:inherit">Extraktion <select id="method"><option value="pca">Hauptkomponenten</option><option value="paf">Hauptachsen</option></select></label></p>
     </div></details>
   </section>
@@ -337,7 +337,7 @@ footer { font-size: .95rem; color: var(--muted); }
     <div class="card" id="pcompare"></div>
     <details class="more"><summary>Erläuterung</summary><div class="moretext">
       <p>Rohwerte allein haben keinen Bezug: Was heißt eine 4 in Offenheit? Die z-Werte setzen sie in Bezug zum Kurs; zwischen −1 und +1 (graues Band) gilt als durchschnittlich.</p>
-      <p>Profilkorrelation r erfasst nur die Form der Profile, die euklidische Distanz auch Niveauunterschiede (Folie 42). Personen erscheinen nur als laufende Nummer.</p>
+      <p>Profilkorrelation r erfasst nur die Form der Profile, die euklidische Distanz auch Niveauunterschiede. Personen erscheinen nur als laufende Nummer.</p>
     </div></details>
   </section>
 
@@ -347,7 +347,7 @@ footer { font-size: .95rem; color: var(--muted); }
         <h2 style="margin:0">Typen</h2>
         <label>k <select id="kk"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></label>
         <button class="btn" id="tnames" type="button" aria-pressed="false">Typen benennen</button>
-        <button class="btn" id="tproto" type="button" aria-pressed="false">Folie 44 zum Vergleich</button>
+        <button class="btn" id="tproto" type="button" aria-pressed="false">Folie zum Vergleich</button>
       </div>
       <div id="tnote"></div>
       <div class="legend" id="tlegend" style="margin-top:.6rem"></div>
@@ -361,7 +361,7 @@ footer { font-size: .95rem; color: var(--muted); }
       <div class="stats" id="tstats"></div>
       <div id="telbow" style="max-width:620px"></div>
       <p>Die Kurve zeigt, welchen Anteil der Unterschiede zwischen Personen die Typzugehörigkeit erklärt (1 minus Streuung innerhalb der Typen geteilt durch die Gesamtstreuung). Ein deutlicher Knick spricht für diese Zahl an Typen.</p>
-      <p>k-means auf den z-standardisierten Skalenwerten (50 Starts): Jede Person gehört zu dem Typ, dessen Mittelwertprofil am nächsten liegt (Folie 43). „Typen benennen“ vergleicht jedes Typprofil mit den Prototypen von Folie 44 über die euklidische Distanz. Auch Daten ohne echte Typen lassen sich in k Gruppen teilen; ob es die Typen „wirklich“ gibt, beantwortet die Clusteranalyse allein nicht.</p>
+      <p>k-means auf den z-standardisierten Skalenwerten (50 Starts): Jede Person gehört zu dem Typ, dessen Mittelwertprofil am nächsten liegt. „Typen benennen“ vergleicht jedes Typprofil mit den Prototypen von der Folie über die euklidische Distanz. Auch Daten ohne echte Typen lassen sich in k Gruppen teilen; ob es die Typen „wirklich“ gibt, beantwortet die Clusteranalyse allein nicht.</p>
       <p id="tprofhint"></p>
       <p>Personen (2D oder 3D): jede Person ein Punkt (leicht gestreut, weil viele dieselben Werte haben), Farbe und Form = Typ, große nummerierte Symbole = Typmittelwerte. Zugeordnet wird über alle fünf Dimensionen, nicht nur über die drei gezeigten.</p>
     </div></details>
@@ -391,7 +391,7 @@ footer { font-size: .95rem; color: var(--muted); }
   <footer>
     <details class="more"><summary>Über diese Seite</summary><div class="moretext">
       <p>Fragebogen: BFI-10 (Rammstedt &amp; John), zehn Aussagen, zwei pro Dimension, Antworten 1 bis 5. Umgepolt (6 minus Antwort) werden „zurückhaltend“ (E), „kritisieren“ (V), „Faulheit“ (G), „entspannt“ (N) und „wenig künstlerisches Interesse“ (O).</p>
-      <p>Daten: die anonymen Antworten aus dem Kursformular (ohne Zeitstempel), von Google als Tabelle veröffentlicht und alle 30 Sekunden neu abgerufen. Sie werden nur im Browser ausgewertet, diese Seite speichert nichts. Personen erscheinen nur als laufende Nummer in der Reihenfolge der Antworten. Simulierte Daten: Mittelwerte und SDs wie im WiSe 2025/26 (Folien 29 bis 31), in der Variante mit Typen nach den Prototypen von Folie 44 (aus der Abbildung abgelesen). Vorjahreswerte und die Werte von Folie 24 und 26 sind von den Vorlesungsfolien übernommen.</p>
+      <p>Daten: die anonymen Antworten aus dem Kursformular (ohne Zeitstempel), von Google als Tabelle veröffentlicht und alle 30 Sekunden neu abgerufen. Sie werden nur im Browser ausgewertet, diese Seite speichert nichts. Personen erscheinen nur als laufende Nummer in der Reihenfolge der Antworten. Simulierte Daten: Mittelwerte und SDs wie im WiSe 2025/26, in der Variante mit Typen nach den Prototypen von der Folie (aus der Abbildung abgelesen). Vorjahreswerte, Interkorrelationen und Faktorladungen sind von den Vorlesungsfolien übernommen.</p>
     </div></details>
   </footer>
 </div>
@@ -408,7 +408,7 @@ const ITEM_KEYS = { 1: ["zuruckhaltend"], 2: ["vertrauen"], 3: ["faulheit", "beq
 const LABELS = [["uberhaupt nicht", 1], ["eher nicht", 2], ["weder", 3], ["eher zutreffend", 4], ["eher zu", 4], ["voll und ganz", 5]];
 const VIEWS = ["stichprobe", "interkorrelationen", "faktorladungen", "verteilungen", "korrelation", "profile", "typen", "ungewoehnlich"];
 
-// Items in BFI-10 order with the short labels of Folie 24 and 25.
+// Items in BFI-10 order with the short labels of the slides.
 const ITEMS = [
   { s: "zurückhaltend", t: "… bin eher zurückhaltend, reserviert." },
   { s: "gutmütig", t: "… schenke anderen leicht Vertrauen, glaube an das Gute im Menschen." },
@@ -422,7 +422,7 @@ const ITEMS = [
   { s: "fantasievoll", t: "… habe eine aktive Vorstellungskraft, bin phantasievoll." }
 ];
 const PAIRS = [[0, 5], [1, 6], [2, 7], [3, 8], [4, 9]];
-// Factor order of Folie 26: F1 N, F2 E, F3 O, F4 V, F5 G; pos = positively worded item.
+// Factor order of the slide: F1 N, F2 E, F3 O, F4 V, F5 G; pos = positively worded item.
 const FACS = [
   { k: "N", name: "Neurotizismus", items: [3, 8], pos: 8 },
   { k: "E", name: "Extraversion", items: [0, 5], pos: 5 },
@@ -430,7 +430,7 @@ const FACS = [
   { k: "V", name: "Verträglichkeit", items: [1, 6], pos: 1 },
   { k: "G", name: "Gewissenhaftigkeit", items: [2, 7], pos: 7 }
 ];
-// Values copied from the lecture slides (Folie 24: upper triangle by row; Folie 26: F1 to F5 by item).
+// Values copied from the lecture slides (intercorrelations: upper triangle by row; loadings: F1 to F5 by item).
 const S23 = [
   [.03, -.13, -.29, .06, -.57, -.12, .05, .21, -.13],
   [.12, .25, -.05, .03, -.81, -.08, -.14, .05],
@@ -447,7 +447,7 @@ const S25 = [
   [.37, -.75, -.07, .07, .00], [-.33, .00, -.05, .72, -.03], [-.03, .15, .10, .05, -.79], [-.67, .43, .20, -.10, -.18], [.14, .14, -.82, .00, .12],
   [-.17, .79, .02, -.03, -.09], [-.04, .02, -.01, -.90, .13], [.00, .01, -.01, -.08, .81], [.81, -.08, -.12, -.11, .00], [.19, .39, .56, -.05, -.18]
 ];
-// Last year's course (WiSe 2025/26), from Folien 7, 29 to 31 and 32.
+// Last year's course (WiSe 2025/26), from the slides.
 const PREV = {
   age: { m: 21.29, md: 21, sd: 4.98 },
   gender: { "weiblich": 123, "männlich": 14, "divers": 3 },
@@ -535,7 +535,7 @@ function load(table, kind, label) {
 }
 
 // ---------- simulated data (n = 150) ----------
-// Scale means and SDs as in WiSe 2025/26 (Folien 29 bis 31); item pair r about .4; "typen" draws from the three prototypes of Folie 44.
+// Scale means and SDs as in WiSe 2025/26 ; item pair r about .4; "typen" draws from the three prototypes on the slide.
 function simulate(mode, seed) {
   const rnd = mulberry32(seed), norm = () => { let u = 0, v = 0; while (!u) u = rnd(); while (!v) v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
   const K = ["N", "E", "O", "V", "G"];
@@ -610,7 +610,7 @@ function renderDists() {
     return `<div class="card"><h2>${d.name}</h2><div class="stats">${st}</div>${pv}${chart}</div>`;
   }).join("");
   const nn = state.rows.filter((r) => DIMS.every((d) => !isNaN(r.sc[d.k]))).length;
-  $("disthint").textContent = `Grundlage: ${nn} vollständige Antworten. Skalenwert = Mittelwert der zwei Aussagen einer Dimension (1 bis 5, daher halbe Schritte). Rote Linie: euer Mittelwert M; gestrichelt: Mittelwert des letzten Jahrgangs (WiSe 2025/26, Folien 29 bis 31; SD dort: ${DIMS.map((d) => d.k + " " + de(PREV.sc[d.k][1])).join(", ")}). SD mit n − 1.`;
+  $("disthint").textContent = `Grundlage: ${nn} vollständige Antworten. Skalenwert = Mittelwert der zwei Aussagen einer Dimension (1 bis 5, daher halbe Schritte). Rote Linie: euer Mittelwert M; gestrichelt: Mittelwert des letzten Jahrgangs (WiSe 2025/26; SD dort: ${DIMS.map((d) => d.k + " " + de(PREV.sc[d.k][1])).join(", ")}). SD mit n − 1.`;
 }
 
 function renderScatter() {
@@ -735,7 +735,7 @@ function renderItems() {
     for (let j = 1; j < ITEMS.length; j++) {
       if (j <= i) { h += `<td class="void"></td>`; continue; }
       const r = R ? R[i][j] : NaN, cls = state.pairs && isPair(i, j) ? "pair" : "";
-      const tip = `${ITEMS[i].s} (${ITEMS[i].t}) und ${ITEMS[j].s} (${ITEMS[j].t}): r = ${isFinite(r) ? rfmt(r) : "–"}; Folie 24: ${rfmt(s23(i, j))}`;
+      const tip = `${ITEMS[i].s} (${ITEMS[i].t}) und ${ITEMS[j].s} (${ITEMS[j].t}): r = ${isFinite(r) ? rfmt(r) : "–"}; Folie: ${rfmt(s23(i, j))}`;
       h += `<td class="${cls}" style="${cellBg(r)}" title="${tip}">${isFinite(r) ? rfmt(r) : "–"}${state.s23 ? `<small>${rfmt(s23(i, j))}</small>` : ""}</td>`;
     }
     h += `</tr>`;
@@ -764,7 +764,7 @@ function renderFactors() {
   let h = `<table class="mx"><thead><tr><th></th>${FACS.map((f, t) => `<th class="fac">F${t + 1}${state.names ? `<small>${f.name}</small>` : ""}</th>`).join("")}</tr></thead><tbody>`;
   L.forEach((row, i) => {
     const mx = row.reduce((b, v, t) => (Math.abs(v) > Math.abs(row[b]) ? t : b), 0);
-    h += `<tr><th class="row" title="${ITEMS[i].t}">${ITEMS[i].s}</th>` + row.map((v, t) => `<td class="${t === mx ? "max" : ""}" style="${cellBg(v)}" title="${ITEMS[i].s} auf F${t + 1}: ${rfmt(v)}; Folie 26: ${rfmt(S25[i][t])}">${rfmt(v)}${state.s25 ? `<small>${rfmt(S25[i][t])}</small>` : ""}</td>`).join("") + `</tr>`;
+    h += `<tr><th class="row" title="${ITEMS[i].t}">${ITEMS[i].s}</th>` + row.map((v, t) => `<td class="${t === mx ? "max" : ""}" style="${cellBg(v)}" title="${ITEMS[i].s} auf F${t + 1}: ${rfmt(v)}; Folie: ${rfmt(S25[i][t])}">${rfmt(v)}${state.s25 ? `<small>${rfmt(S25[i][t])}</small>` : ""}</td>`).join("") + `</tr>`;
   });
   const ssl = FACS.map((_, t) => L.reduce((s, r) => s + r[t] ** 2, 0));
   h += `<tr class="sum"><th class="row" style="font-weight:400;color:var(--muted)">erklärte Varianz</th>${ssl.map((v) => `<td>${(v * 10).toFixed(0)} %</td>`).join("")}</tr>`;
@@ -872,8 +872,8 @@ function cur3D() {
 function spinStep() { const f = cur3D(); if (!state.spin || !f) { raf3 = 0; return; } state.az += 0.006; f(); raf3 = requestAnimationFrame(spinStep); }
 function setSpin(on) { state.spin = on; document.querySelectorAll(".spinbtn").forEach((b) => b.setAttribute("aria-pressed", String(on))); if (on && !raf3) raf3 = requestAnimationFrame(spinStep); }
 
-// ---------- types (Folien 43 bis 45): k-means on z-standardized scale scores ----------
-// Prototype profiles read off the bar chart on Folie 44 (z values, rounded, order N E O V G).
+// ---------- types: k-means on z-standardized scale scores ----------
+// Prototype profiles read off the bar chart on the slide (z values, rounded, order N E O V G).
 const PROTO = [
   { name: "Resilient", z: [-0.55, 0.35, -0.13, 0.13, 0.61] },
   { name: "Überkontrolliert", z: [0.84, -0.74, 0.05, -0.16, -0.08] },
@@ -917,7 +917,7 @@ function computeTypes() {
   const k = +$("kk").value, { idx, X, Z } = zData(), n = Z.length;
   if (n < Math.max(10, 3 * k)) return { k, n, tooFew: true };
   let { C, lab, W } = kmeans(Z, k);
-  // keep colours stable across live updates: match to the previous centroids; else order by Folie 44 prototypes (k = 3) or by size
+  // keep colours stable across live updates: match to the previous centroids; else order by slide prototypes (k = 3) or by size
   let order;
   if (prevCent && prevK === k) order = bestPerm(k, (i, j) => dist2(prevCent[i], C[j]));
   else if (k === 3) order = bestPerm(3, (i, j) => dist2(PROTO[i].z, C[j]));
@@ -927,7 +927,7 @@ function computeTypes() {
   prevCent = C.map((c) => c.slice()); prevK = k;
   const T = Z.reduce((s, z) => s + z.reduce((q, v) => q + v * v, 0), 0);
   const sizes = C.map((_, c) => lab.filter((l) => l === c).length);
-  // names: nearest Folie-45 prototype by euclidean distance (level and shape, Folie 42); one-to-one when k = 3
+  // names: nearest slide prototype by euclidean distance (level and shape); one-to-one when k = 3
   let names;
   if (k === 3) { const pm = bestPerm(3, (i, j) => Math.sqrt(dist2(C[i], PROTO[j].z))); names = C.map((c, i) => ({ p: pm[i], d: Math.sqrt(dist2(c, PROTO[pm[i]].z)) })); }
   else names = C.map((c) => { const ds = PROTO.map((pr) => Math.sqrt(dist2(c, pr.z))), j = ds.indexOf(Math.min(...ds)); return { p: j, d: ds[j] }; });
@@ -956,9 +956,9 @@ function renderTypes() {
   $("tlegend").querySelectorAll("span").forEach((el, c) => { el.title = `n = ${t.sizes[c]}` + (state.tnames ? `, Distanz zum Prototyp ${de(t.names[c].d)}` : ""); });
   const series = t.C.map((c, i) => ({ vals: c, color: KCOL[i], name: tname(t, i) }));
   const pcol = (i) => { const c = t.k === 3 ? t.names.findIndex((nm) => nm.p === i) : -1; return c >= 0 ? KCOL[c] : "var(--muted)"; };
-  const protos = state.tproto ? PROTO.map((p, i) => ({ vals: p.z, color: pcol(i), name: p.name + " (Folie 44)", dash: true })) : [];
+  const protos = state.tproto ? PROTO.map((p, i) => ({ vals: p.z, color: pcol(i), name: p.name + " (Folie)", dash: true })) : [];
   $("tprof").innerHTML = profileChart([...protos, ...series], -2, 2, true);
-  $("tprofhint").textContent = "Mittelwertprofil jedes Typs in z-Werten (0 = Kursmittel, graues Band = ±1)." + (state.tproto ? " Gestrichelt: Prototypen von Folie 44 (abgelesen, gerundet)" + (t.k === 3 ? ", in der Farbe des ähnlichsten Typs." : ".") : "");
+  $("tprofhint").textContent = "Mittelwertprofil jedes Typs in z-Werten (0 = Kursmittel, graues Band = ±1)." + (state.tproto ? " Gestrichelt: Prototypen von der Folie (abgelesen, gerundet)" + (t.k === 3 ? ", in der Farbe des ähnlichsten Typs." : ".") : "");
   $("tstats").innerHTML = `<span><b>erklärte Unterschiede</b>${(t.ev * 100).toFixed(0)} %</span>`;
   // elbow chart
   const Wd = 520, Hd = 200, L = 46, R = 14, T = 14, B = 34, kmax = t.elbow.length;
